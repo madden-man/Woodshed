@@ -25,10 +25,12 @@ src/
     keys.ts         The twelve keys: ii-V-I, minor ii-V-i, upper structures
     theory.ts       The wiki content itself
     curriculum.ts   The hundred sessions: units, the ten-step arc, getRegimen()
+    fingerings.ts   Major scale fingerings, and per-unit fingering guidance
   components/
     Layout.tsx        Masthead, session bar, category sidebar, outlet
     Blocks.tsx        Renders the Block union — one case per kind
     SessionBar.tsx    Sticky: current block, next up, clock, controls
+    Fingering.tsx     Scale diagram plus the block's fingering notes
     SessionTimer.tsx  The start affordance on a session page
   hooks/
     progress-context.ts   Context + useProgress()
@@ -109,11 +111,37 @@ everything worth testing here is pure.
 | `data/keys.test.ts` | The harmony itself — ii/V/I roots, minor ii–V–i roots, chord qualities, and that all 48 upper-structure triads really are ♭II/VI/♭VI/II above their dominant |
 | `data/curriculum.test.ts` | All 100 generate; the arc repeats per unit; keys follow the cycle; minutes split exactly at every session length; **unit material never dictates execution** |
 | `data/theory.test.ts` | Slugs unique and url-safe, related links resolve, table rows match their headers, no empty content |
+| `data/fingerings.test.ts` | Every scale spells a real major scale with one letter per degree; no thumb on a black key mid-scale; no finger jumps except across a crossing |
 
 The execution-directive test is the interesting one. Unit material says *what*
 to play and the variant says *how*; a unit that bakes in "hands together"
 contradicts the Introduce step, which says hands apart. That shipped once and
 the test exists so it can't again.
+
+## Fingerings
+
+Two different kinds of thing live in `data/fingerings.ts`, and the distinction
+is deliberate:
+
+- **`MAJOR_SCALES`** is the standard fingering from the method books — settled,
+  the same in every edition, and shown as a diagram under the warm-up and
+  scales blocks with the thumbs marked and black keys inverted.
+- **Everything else is convention.** Arpeggio and voicing fingerings vary with
+  hand size and with what follows in the phrase, so they read as a starting
+  point and say so. Where a scale type genuinely has no standard fingering —
+  blues, pentatonic — the guidance says that rather than inventing one.
+
+Most of the per-unit guidance is a derivation rather than a new set of numbers,
+because that is what is actually true: a mode uses its parent major scale's
+fingering, the altered scale is fingered as the melodic minor it comes from,
+and harmonic and melodic minor keep the fingering of the natural minor they sit
+next to. Telling you to re-finger from each new tonic would break the very
+connection the unit is teaching.
+
+The tests check the data against real principles rather than against itself:
+each scale must spell a major scale by interval, use one letter name per
+degree, keep the thumb off black keys mid-scale, and never jump fingers except
+across a crossing.
 
 ## Database
 

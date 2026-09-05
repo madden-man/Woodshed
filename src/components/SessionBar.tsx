@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatClock } from '../lib/notify'
 import { getRegimen } from '../data/curriculum'
+import type { KeyName } from '../data/keys'
 import { useTimer } from '../hooks/timer-context'
+import Fingering from './Fingering'
 
 /**
  * Sticky under the masthead for the whole session, on every page. Carries the
@@ -102,6 +104,9 @@ export default function SessionBar() {
           context={`Regimen ${regimen.number} · ${regimen.unit.name} · ${regimen.variant.name} · key of ${regimen.key}`}
           target={regimen.unit.target}
           regimen={regimen.number}
+          unitId={regimen.unit.id}
+          blockId={detail.id}
+          scaleKey={regimen.key}
         />
       )}
     </div>
@@ -114,9 +119,12 @@ interface DetailProps {
   context: string
   target: string
   regimen: number
+  unitId: number
+  blockId: string
+  scaleKey: KeyName
 }
 
-function BlockDetail({ purpose, items, context, target, regimen }: DetailProps) {
+function BlockDetail({ purpose, items, context, target, regimen, unitId, blockId, scaleKey }: DetailProps) {
   // Remounting on each hand-off resets this to open, so new work is never hidden.
   const [open, setOpen] = useState(true)
 
@@ -135,11 +143,14 @@ function BlockDetail({ purpose, items, context, target, regimen }: DetailProps) 
       {open && (
         <div className="bar-detail-body">
           <p className="bar-purpose">{purpose}</p>
-          <ul className="bar-items">
-            {items.map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-          </ul>
+          <div>
+            <ul className="bar-items">
+              {items.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ul>
+            <Fingering unitId={unitId} blockId={blockId} scaleKey={scaleKey} variant="bar" />
+          </div>
           <p className="bar-target">
             <span className="bar-target-label">Unit is aiming at</span> {target}{' '}
             <Link to={`/regimen/${regimen}`}>Full session →</Link>

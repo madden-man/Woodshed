@@ -6,6 +6,7 @@ import { getTopic } from '../data/theory'
 import { useProgress, type SyncState } from '../hooks/progress-context'
 import { useTimer } from '../hooks/timer-context'
 import SessionTimer from '../components/SessionTimer'
+import Fingering from '../components/Fingering'
 
 export default function RegimenPage() {
   const params = useParams<{ number?: string }>()
@@ -110,6 +111,7 @@ export default function RegimenPage() {
                     <li key={j}>{item}</li>
                   ))}
                 </ul>
+                <Fingering unitId={regimen.unit.id} blockId={block.id} scaleKey={regimen.key} />
               </div>
               <button
                 type="button"
