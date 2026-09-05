@@ -142,3 +142,94 @@ describe('content blocks', () => {
     }
   })
 })
+
+/**
+ * The shell-voicing rows are the most error-prone content in the wiki: a
+ * stacking order, a chord quality and three note names that all have to agree.
+ * These parse the notes back and check them against the formula rather than
+ * taking the prose at its word.
+ */
+describe('shell voicings are spelled correctly', () => {
+  const PITCH: Record<string, number> = {
+    C: 0, 'C♯': 1, 'D♭': 1, D: 2, 'D♯': 3, 'E♭': 3, E: 4,
+    F: 5, 'F♯': 6, 'G♭': 6, G: 7, 'G♯': 8, 'A♭': 8, A: 9, 'A♯': 10, 'B♭': 10, B: 11,
+  }
+
+  /** Semitones above the root for each chord degree, by quality. */
+  const QUALITY: Record<string, Record<number, number>> = {
+    m7: { 1: 0, 3: 3, 5: 7, 7: 10 },
+    7: { 1: 0, 3: 4, 5: 7, 7: 10 },
+    maj7: { 1: 0, 3: 4, 5: 7, 7: 11 },
+    'm7♭5': { 1: 0, 3: 3, 5: 6, 7: 10 },
+  }
+
+  function parseChord(name: string) {
+    const root = name[1] === '♯' || name[1] === '♭' ? name.slice(0, 2) : name[0]
+    const quality = name.slice(root.length)
+    return { root: PITCH[root], quality }
+  }
+
+  /** Stack the degrees upward from the root, each above the last. */
+  function stack(root: number, quality: string, degrees: number[]): number[] {
+    const table = QUALITY[quality]
+    let previous = root
+    return degrees.map((d, i) => {
+      if (i === 0) return root
+      const target = (root + table[d]) % 12
+      // Always ascend to the next occurrence of that pitch class.
+      let pitch = target
+      while (pitch <= previous) pitch += 12
+      previous = pitch
+      return pitch
+    })
+  }
+
+  const topic = getTopic('shell-voicings')!
+  const spelled = topic.blocks.find(
+    (b) => b.kind === 'worked' && b.label === 'The ii–V–I in C, spelled out',
+  )
+  const bothWays = topic.blocks.find(
+    (b) => b.kind === 'worked' && b.label === 'The same Dm7, stacked both ways',
+  )
+
+  it('has the blocks these assertions depend on', () => {
+    expect(spelled?.kind).toBe('worked')
+    expect(bothWays?.kind).toBe('worked')
+  })
+
+  it('spells the ii–V–I shells to match their stacking orders', () => {
+    if (spelled?.kind !== 'worked') throw new Error('missing block')
+    for (const row of spelled.rows) {
+      // e.g. "Dm7 as 1-7-3"
+      const [chordName, order] = row.symbol.split(' as ')
+      const degrees = order.split('-').map(Number)
+      const { root, quality } = parseChord(chordName)
+
+      const expected = stack(root, quality, degrees)
+      const actual = row.gives.split('–').map((n) => PITCH[n.trim()])
+
+      // Compare as ascending pitch classes from the root.
+      const expectedClasses = expected.map((p) => p % 12)
+      expect(actual, `${row.symbol} → ${row.gives}`).toEqual(expectedClasses)
+    }
+  })
+
+  it('shows both Dm7 stackings as the same three notes in a different order', () => {
+    if (bothWays?.kind !== 'worked') throw new Error('missing block')
+    const sets = bothWays.rows.map((r) => r.gives.split('–').map((n) => PITCH[n.trim()]))
+    expect(sets).toHaveLength(2)
+    // Same notes...
+    expect([...sets[0]].sort()).toEqual([...sets[1]].sort())
+    // ...different order.
+    expect(sets[0]).not.toEqual(sets[1])
+    // Both start on the root, D.
+    for (const set of sets) expect(set[0]).toBe(PITCH.D)
+  })
+
+  it('explains that the numbers are read bottom to top', () => {
+    const text = topic.blocks
+      .map((b) => (b.kind === 'prose' ? b.text : b.kind === 'callout' ? `${b.title} ${b.text}` : ''))
+      .join(' ')
+    expect(text).toMatch(/bottom to top/i)
+  })
+})

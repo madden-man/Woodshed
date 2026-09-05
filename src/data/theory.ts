@@ -323,7 +323,29 @@ export const TOPICS: Topic[] = [
       },
       {
         kind: 'prose',
-        text: 'Those three notes get stacked in one of two orders, and the shorthand for the order is a string of numbers. 1-7-3 means: play the root, then the seventh above it, then the third above that. 1-3-7 means root, then the third, then the seventh. Same three notes either way — a different shape under the hand.',
+        text: 'Those three notes get stacked in one of two orders, and the shorthand for the order is a string of numbers. Read them bottom to top, like the notes sit on the keyboard: 1-7-3 means the root on the bottom, the seventh above it, the third on top. 1-3-7 is the same three notes with the top two swapped.',
+      },
+      {
+        kind: 'callout',
+        title: 'The numbers are an order, not a list',
+        text: 'This trips up nearly everyone once. 1-7-3 is not telling you which degrees the chord contains — a m7 chord always contains its 3rd and its 7th, whatever you do. It is telling you the order to stack them in, from the bottom of your hand upwards. So a Dm7 played 1-7-3 still has F in it; F is simply the note on top, which is why 3 comes last.',
+      },
+      {
+        kind: 'worked',
+        label: 'The same Dm7, stacked both ways',
+        rows: [
+          {
+            symbol: '1-7-3',
+            means: 'D on the bottom. Up a minor 7th to C, which is the ♭7. Up a fourth to F, which is the ♭3.',
+            gives: 'D – C – F',
+          },
+          {
+            symbol: '1-3-7',
+            means: 'D on the bottom. Up a minor 3rd to F, which is the ♭3. Up a fifth to C, which is the ♭7.',
+            gives: 'D – F – C',
+          },
+        ],
+        note: 'Identical notes, identical chord. The only difference is which of F and C is on top — and that is decided by what you played last, not by the chord. Both are correct voicings of Dm7; the progression below uses 1-7-3 for a reason the next section shows.',
       },
       {
         kind: 'worked',
@@ -333,7 +355,7 @@ export const TOPICS: Topic[] = [
           { symbol: 'G7 as 1-3-7', means: 'G, then the 3rd above it, then the ♭7 above that', gives: 'G – B – F' },
           { symbol: 'Cmaj7 as 1-7-3', means: 'C, then the natural 7 above it, then the 3rd above that', gives: 'C – B – E' },
         ],
-        note: 'That is the entire left hand for a ii–V–I in C. Nine notes, three shapes, and you can play it right now.',
+        note: 'That is the entire left hand for a ii–V–I in C. Nine notes, three shapes, and you can play it right now. Read each row bottom to top: on the Dm7 your thumb is on F, the ♭3, with the ♭7 underneath it.',
       },
       {
         kind: 'progression',
@@ -515,7 +537,7 @@ export const TOPICS: Topic[] = [
           { symbol: 'G7alt as 1-3-♭7', means: 'root, the 3rd above, the ♭7 above that', gives: 'G – B – F' },
           { symbol: 'Cm6/9 as 1-♭3-6', means: 'root, the ♭3 above, the natural 6th above that', gives: 'C – E♭ – A' },
         ],
-        note: 'The shell of the half-diminished ii is identical to the shell of a plain Dm7 — the ♭5 lives in the right hand. That is a useful shortcut: your left hand barely has to change.',
+        note: 'Read bottom to top, as always. The shell of the half-diminished ii is identical to the shell of a plain Dm7 — the ♭5 lives in the right hand, so your left hand barely has to change.',
       },
       {
         kind: 'list',
