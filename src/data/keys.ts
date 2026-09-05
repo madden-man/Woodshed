@@ -44,25 +44,7 @@ export const UPPER_STRUCTURE_FUNCTIONS = [
   { degree: 'II', gives: '9, ♯11, 13', color: 'lydian dominant' },
 ] as const
 
-/** Days since a fixed epoch, so anything keyed off it advances exactly once per calendar day. */
-export function dayNumber(date: Date): number {
-  const utc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
-  return Math.floor(utc / 86_400_000)
-}
-
-/** The key of the day: one step around the cycle of fourths, twelve days to close the circle. */
-export function keyForDay(date: Date = new Date(), offset = 0): KeyName {
-  const i = (((dayNumber(date) + offset) % 12) + 12) % 12
-  return CYCLE_OF_FOURTHS[i]
-}
-
 export function nextKey(key: KeyName): KeyName {
   const i = CYCLE_OF_FOURTHS.indexOf(key)
   return CYCLE_OF_FOURTHS[(i + 1) % 12]
-}
-
-/** The practice day as YYYY-MM-DD in local time — the key each progress doc is stored under. */
-export function isoDay(date: Date = new Date()): string {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }

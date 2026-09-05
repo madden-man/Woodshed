@@ -16,16 +16,29 @@ try {
   console.log(`Connected to ${db}.${PROGRESS}`)
   console.log(`${count} document${count === 1 ? '' : 's'}`)
 
-  if (count > 0) {
-    const recent = await col.find({}).sort({ date: -1 }).limit(5).toArray()
-    console.log('\nFields present:', [...new Set(recent.flatMap(Object.keys))].join(', '))
-    console.log('\nMost recent:')
-    for (const doc of recent) {
-      const done = Array.isArray(doc.completed) ? doc.completed.length : '?'
-      console.log(`  ${doc.date ?? '(no date)'}  key ${doc.key ?? '—'}  ${done} blocks`)
+  const withRegimen = await col.countDocuments({ regimen: { $exists: true } })
+  console.log(`${withRegimen} of them are curriculum sessions`)
+
+  if (withRegimen > 0) {
+    const rows = await col
+      .find({ regimen: { $exists: true } })
+      .sort({ regimen: 1 })
+      .toArray()
+
+    const finished = rows.filter((r) => (r.completed ?? []).length >= 5).length
+    console.log(`${finished} session${finished === 1 ? '' : 's'} finished (5/5 blocks)`)
+    console.log('\nFields present:', [...new Set(rows.flatMap(Object.keys))].join(', '))
+    console.log('\nMost recently touched:')
+    for (const doc of rows.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0)).slice(0, 5)) {
+      console.log(`  session ${String(doc.regimen).padStart(3)}  ${(doc.completed ?? []).length}/5 blocks`)
     }
   } else {
-    console.log('\nEmpty — tick a block on /regimen and run this again.')
+    console.log('\nNo session progress yet — tick a block on /regimen and run this again.')
+  }
+
+  if (count > withRegimen) {
+    console.log(`\nNote: ${count - withRegimen} document(s) here have no 'regimen' field.`)
+    console.log("The app ignores those; they're from the earlier date-keyed schema.")
   }
   process.exit(0)
 } catch (error) {

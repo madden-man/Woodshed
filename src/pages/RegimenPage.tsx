@@ -1,35 +1,64 @@
 import { useState } from 'react'
-import { buildSession, drillForDay, minutesFor, SESSION_LENGTHS } from '../data/regimen'
-import { isoDay, keyForDay, nextKey, KEYS } from '../data/keys'
-import { useDayProgress, type SyncState } from '../hooks/useDayProgress'
+import { Link, useParams } from 'react-router-dom'
+import { getRegimen, minutesFor, SESSION_LENGTHS, TOTAL_REGIMENS } from '../data/curriculum'
+import { KEYS } from '../data/keys'
+import { getTopic } from '../data/theory'
+import { useProgress, type SyncState } from '../hooks/progress-context'
 
 export default function RegimenPage() {
+  const params = useParams<{ number?: string }>()
+  const { completedBlocks, toggle, current, state, error } = useProgress()
   const [length, setLength] = useState<number>(60)
-  // Read the clock once, on mount, so the session doesn't shift under a re-render.
-  const [today] = useState(() => new Date())
 
-  const key = keyForDay(today)
-  const date = isoDay(today)
-  const blocks = buildSession(key, today.getDay(), drillForDay(today))
-  const minutes = minutesFor(blocks, length)
+  // No number in the URL means "wherever I left off".
+  const number = params.number ? Number(params.number) : current
+  if (!Number.isInteger(number) || number < 1 || number > TOTAL_REGIMENS) {
+    return (
+      <div className="page-head">
+        <div className="eyebrow">Not found</div>
+        <h1>No regimen {params.number}</h1>
+        <p className="lede">
+          The curriculum runs 1 to {TOTAL_REGIMENS}. <Link to="/curriculum">See the whole ladder</Link>.
+        </p>
+      </div>
+    )
+  }
 
-  const { completed, toggle, state, error } = useDayProgress(date, key)
-  const info = KEYS[key]
+  const regimen = getRegimen(number)
+  const minutes = minutesFor(regimen.blocks, length)
+  const done = completedBlocks(number)
+  const info = KEYS[regimen.key]
 
   return (
     <>
       <div className="page-head">
-        <div className="eyebrow">
-          {today.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-        </div>
-        <h1>Today’s session in {key}</h1>
-        <p className="lede">
-          Five blocks, scaled to the time you have. The ii–V–I of the day is{' '}
-          <span className="mono">
-            {info.ii} · {info.V} · {info.I}
+        <div className="regimen-meta">
+          <span className="eyebrow">
+            Unit {regimen.unit.id} · {regimen.unit.name}
           </span>
-          , resolving into {nextKey(key)} at the end of block three.
-        </p>
+          <span className="level-chip">Level {regimen.level}</span>
+        </div>
+        <h1>
+          <span className="regimen-number">{regimen.number}</span> {regimen.variant.name}
+        </h1>
+        <p className="lede">{regimen.variant.aim}</p>
+      </div>
+
+      <div className="regimen-strip">
+        <div>
+          <div className="eyebrow">Key</div>
+          <div className="strip-key">{regimen.key}</div>
+        </div>
+        <div className="strip-prog">
+          <div className="eyebrow">ii – V – I</div>
+          <div className="mono">
+            {info.ii} · {info.V} · {info.I}
+          </div>
+        </div>
+        <div className="strip-goal">
+          <div className="eyebrow">Unit goal</div>
+          <div>{regimen.unit.goal}</div>
+        </div>
       </div>
 
       <div className="length-picker" role="group" aria-label="Session length">
@@ -39,13 +68,13 @@ export default function RegimenPage() {
           </button>
         ))}
         <span className="picker-count">
-          {completed.length} of {blocks.length} blocks
+          {done.length} of {regimen.blocks.length} blocks
         </span>
       </div>
 
       <ol className="session">
-        {blocks.map((block, i) => {
-          const isDone = completed.includes(block.id)
+        {regimen.blocks.map((block, i) => {
+          const isDone = done.includes(block.id)
           return (
             <li key={block.id} className={isDone ? 'block is-done' : 'block'}>
               <div className="block-gutter">
@@ -57,7 +86,6 @@ export default function RegimenPage() {
               </div>
               <div className="block-body">
                 <h2>{block.title}</h2>
-                <p className="block-lede">{block.lede}</p>
                 <ul className="bullets">
                   {block.items.map((item, j) => (
                     <li key={j}>{item}</li>
@@ -70,7 +98,7 @@ export default function RegimenPage() {
                 aria-pressed={isDone}
                 aria-label={`Mark ${block.title} complete`}
                 disabled={state === 'loading'}
-                onClick={() => toggle(block.id)}
+                onClick={() => toggle(number, block.id)}
               >
                 ✓
               </button>
@@ -79,15 +107,46 @@ export default function RegimenPage() {
         })}
       </ol>
 
+      <nav className="regimen-nav">
+        {number > 1 ? (
+          <Link to={`/regimen/${number - 1}`} className="nav-prev">
+            ← {getRegimen(number - 1).number}. {getRegimen(number - 1).variant.name}
+          </Link>
+        ) : (
+          <span />
+        )}
+        {number < TOTAL_REGIMENS ? (
+          <Link to={`/regimen/${number + 1}`} className="nav-next">
+            {getRegimen(number + 1).number}. {getRegimen(number + 1).variant.name} →
+          </Link>
+        ) : (
+          <span />
+        )}
+      </nav>
+
+      <section className="reading">
+        <h2 className="section-head">What this unit reads on</h2>
+        <div className="related-links">
+          {regimen.unit.wiki.map((slug) => {
+            const topic = getTopic(slug)
+            return topic ? (
+              <Link key={slug} to={`/wiki/${slug}`}>
+                {topic.title}
+              </Link>
+            ) : null
+          })}
+        </div>
+      </section>
+
       <SyncNotice state={state} error={error} />
     </>
   )
 }
 
 const SYNC_LABEL: Record<SyncState, string> = {
-  loading: 'Loading today’s progress…',
+  loading: 'Loading your progress…',
   saving: 'Saving…',
-  synced: 'Saved to tommy-data',
+  synced: 'Saved to piano-progress',
   offline: 'Not saving',
   error: 'Save failed',
 }
@@ -98,9 +157,9 @@ function SyncNotice({ state, error }: { state: SyncState; error: string | null }
       <aside className="callout">
         <div className="callout-title">Not saving</div>
         <p>
-          The practice API isn’t running, so check-offs live in memory and reset on reload. Start the app with{' '}
-          <span className="mono">npm start</span> (netlify dev) rather than <span className="mono">npm run dev</span>{' '}
-          to connect to Mongo.
+          The practice API isn’t running, so check-offs reset on reload. Start the app with{' '}
+          <span className="mono">npm start</span> rather than <span className="mono">npm run dev</span> to connect
+          to Mongo.
         </p>
       </aside>
     )

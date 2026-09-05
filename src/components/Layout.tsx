@@ -1,10 +1,11 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { CATEGORIES } from '../data/types'
 import { TOPICS } from '../data/theory'
-import { keyForDay } from '../data/keys'
+import { TOTAL_REGIMENS } from '../data/curriculum'
+import { useProgress } from '../hooks/progress-context'
 
 export default function Layout() {
-  const key = keyForDay()
+  const { current, finishedCount } = useProgress()
 
   return (
     <div className="shell">
@@ -15,9 +16,12 @@ export default function Layout() {
         </NavLink>
         <nav className="top-nav">
           <NavLink to="/keys">Keys</NavLink>
-          <NavLink to="/regimen">Daily regimen</NavLink>
-          <span className="key-chip" title="Key of the day, cycle of fourths">
-            {key}
+          <NavLink to="/curriculum">Curriculum</NavLink>
+          <NavLink to="/regimen" end>
+            Session {current}
+          </NavLink>
+          <span className="key-chip" title={`${finishedCount} of ${TOTAL_REGIMENS} sessions finished`}>
+            {finishedCount}/{TOTAL_REGIMENS}
           </span>
         </nav>
       </header>

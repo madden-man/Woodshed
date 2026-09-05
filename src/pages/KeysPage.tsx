@@ -1,7 +1,11 @@
-import { CYCLE_OF_FOURTHS, KEYS, UPPER_STRUCTURE_FUNCTIONS, keyForDay } from '../data/keys'
+import { CYCLE_OF_FOURTHS, KEYS, UPPER_STRUCTURE_FUNCTIONS } from '../data/keys'
+import { getRegimen } from '../data/curriculum'
+import { useProgress } from '../hooks/progress-context'
 
 export default function KeysPage() {
-  const today = keyForDay()
+  // Highlight whichever key the session you're on is in.
+  const { current } = useProgress()
+  const activeKey = getRegimen(current).key
 
   return (
     <>
@@ -10,7 +14,8 @@ export default function KeysPage() {
         <h1>All twelve keys</h1>
         <p className="lede">
           Every ii–V–I, its minor counterpart, and the four upper-structure triads over the dominant. Ordered by
-          the cycle of fourths, so reading down the table is the same as practising in order.
+          the cycle of fourths, so reading down the table is the same as practising in order. Session {current} is
+          highlighted.
         </p>
       </div>
 
@@ -28,7 +33,7 @@ export default function KeysPage() {
             {CYCLE_OF_FOURTHS.map((k) => {
               const info = KEYS[k]
               return (
-                <tr key={k} className={k === today ? 'is-today' : undefined}>
+                <tr key={k} className={k === activeKey ? 'is-today' : undefined}>
                   <td className="lead-cell key-cell">{k}</td>
                   <td className="mono">
                     {info.ii} · {info.V} · {info.I}

@@ -1,52 +1,43 @@
 import { collection, PROGRESS } from '../lib/mongo.mjs'
 
+const TOTAL_REGIMENS = 100
+
 /**
- * GET  /api/progress?date=YYYY-MM-DD   one day
- * GET  /api/progress?days=30           the last N days, newest first
- * POST /api/progress  { date, key, completed: string[] }
+ * GET  /api/progress                 every regimen with progress on it
+ * POST /api/progress  { regimen, completed: string[] }
  *
- * One document per practice day, keyed on the date string.
+ * One document per regimen in the curriculum, keyed on its number. There is no
+ * date here on purpose — the sequence is a ladder you climb, not a calendar.
  */
 export default async (req) => {
   try {
     const col = await collection(PROGRESS)
 
     if (req.method === 'GET') {
-      const params = new URL(req.url).searchParams
-      const date = params.get('date')
-
-      if (date) {
-        const doc = await col.findOne({ date }, { projection: { _id: 0 } })
-        return Response.json(doc ?? { date, completed: [] })
-      }
-
-      const days = Math.min(Number(params.get('days')) || 30, 365)
       const docs = await col
-        .find({}, { projection: { _id: 0 } })
-        .sort({ date: -1 })
-        .limit(days)
+        .find({ regimen: { $exists: true } }, { projection: { _id: 0 } })
+        .sort({ regimen: 1 })
+        .limit(TOTAL_REGIMENS)
         .toArray()
       return Response.json(docs)
     }
 
     if (req.method === 'POST') {
-      const body = await req.json()
-      const { date, key, completed } = body ?? {}
+      const { regimen, completed } = (await req.json()) ?? {}
 
-      if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        return Response.json({ error: 'date must be YYYY-MM-DD' }, { status: 400 })
+      if (!Number.isInteger(regimen) || regimen < 1 || regimen > TOTAL_REGIMENS) {
+        return Response.json({ error: `regimen must be an integer 1-${TOTAL_REGIMENS}` }, { status: 400 })
       }
       if (!Array.isArray(completed) || completed.some((id) => typeof id !== 'string')) {
         return Response.json({ error: 'completed must be an array of block ids' }, { status: 400 })
       }
 
       const doc = {
-        date,
-        key: typeof key === 'string' ? key : null,
+        regimen,
         completed: [...new Set(completed)],
         updatedAt: new Date(),
       }
-      await col.updateOne({ date }, { $set: doc }, { upsert: true })
+      await col.updateOne({ regimen }, { $set: doc }, { upsert: true })
       return Response.json(doc)
     }
 

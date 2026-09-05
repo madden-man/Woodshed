@@ -1,6 +1,5 @@
-export interface DayProgress {
-  date: string
-  key: string | null
+export interface RegimenProgress {
+  regimen: number
   completed: string[]
 }
 
@@ -31,18 +30,14 @@ async function request(path: string, init?: RequestInit): Promise<unknown> {
   return res.json()
 }
 
-export function fetchDay(date: string): Promise<DayProgress> {
-  return request(`/api/progress?date=${encodeURIComponent(date)}`) as Promise<DayProgress>
+export function fetchProgress(): Promise<RegimenProgress[]> {
+  return request('/api/progress') as Promise<RegimenProgress[]>
 }
 
-export function fetchHistory(days = 30): Promise<DayProgress[]> {
-  return request(`/api/progress?days=${days}`) as Promise<DayProgress[]>
-}
-
-export function saveDay(progress: DayProgress): Promise<DayProgress> {
+export function saveProgress(progress: RegimenProgress): Promise<RegimenProgress> {
   return request('/api/progress', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(progress),
-  }) as Promise<DayProgress>
+  }) as Promise<RegimenProgress>
 }
