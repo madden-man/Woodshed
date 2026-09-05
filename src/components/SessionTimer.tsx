@@ -6,83 +6,29 @@ interface Props {
   blocks: TimerBlock[]
 }
 
+/**
+ * The start affordance on a session page. Once running, the sticky
+ * <SessionBar /> carries the clock and the controls, so this steps aside
+ * rather than showing a second set of them.
+ */
 export default function SessionTimer({ regimen, blocks }: Props) {
   const timer = useTimer()
-  const isThis = timer.regimen === regimen && timer.status !== 'idle'
+  if (timer.regimen === regimen && timer.status !== 'idle') return null
 
-  if (!isThis) {
-    return (
-      <div className="timer timer-idle">
-        <button type="button" className="btn" onClick={() => timer.start(regimen, blocks)}>
-          Start session
-        </button>
-        <p className="timer-hint">
-          {formatClock(blocks.reduce((s, b) => s + b.ms, 0))} across five blocks. You’ll get a chime and a
-          notification at each hand-off.
-          {timer.regimen !== null && timer.regimen !== regimen && (
-            <> Regimen {timer.regimen} is running — starting here replaces it.</>
-          )}
-        </p>
-      </div>
-    )
-  }
-
-  if (timer.status === 'done') {
-    return (
-      <div className="timer timer-done">
-        <div>
-          <div className="eyebrow">Session complete</div>
-          <div className="timer-block-name">All five blocks timed out</div>
-        </div>
-        <button type="button" className="btn ghost" onClick={timer.stop}>
-          Clear
-        </button>
-      </div>
-    )
-  }
-
-  const current = timer.blocks[timer.blockIndex]
-  const pct = current ? ((current.ms - timer.remainingMs) / current.ms) * 100 : 0
+  const total = blocks.reduce((s, b) => s + b.ms, 0)
+  const elsewhere = timer.regimen !== null && timer.regimen !== regimen
 
   return (
-    <div className={timer.status === 'paused' ? 'timer is-paused' : 'timer'}>
-      <div className="timer-clock">{formatClock(timer.remainingMs)}</div>
-
-      <div className="timer-main">
-        <div className="timer-block-name">
-          <span className="timer-index">Block {timer.blockIndex + 1}</span>
-          {current?.title}
-          {timer.status === 'paused' && <span className="timer-paused-tag">paused</span>}
-        </div>
-        <div className="timer-bar" aria-hidden="true">
-          <i style={{ width: `${pct}%` }} />
-        </div>
-        <div className="timer-total">{formatClock(timer.totalRemainingMs)} left in the session</div>
-      </div>
-
-      <div className="timer-controls">
-        {timer.status === 'running' ? (
-          <button type="button" className="btn ghost" onClick={timer.pause}>
-            Pause
-          </button>
-        ) : (
-          <button type="button" className="btn" onClick={timer.resume}>
-            Resume
-          </button>
-        )}
-        <button type="button" className="btn ghost" onClick={timer.skip}>
-          Next block
-        </button>
-        <button type="button" className="btn ghost" onClick={timer.stop} aria-label="Stop the timer">
-          Stop
-        </button>
-      </div>
-
-      {timer.permission === 'denied' && (
-        <p className="timer-note">
-          Notifications are blocked for this site, so hand-offs will chime but won’t raise a system notification.
-        </p>
-      )}
+    <div className="timer-idle">
+      <button type="button" className="btn" onClick={() => timer.start(regimen, blocks)}>
+        Start session
+      </button>
+      <p className="timer-hint">
+        {formatClock(total)} across {blocks.length} blocks — {blocks.map((b) => Math.round(b.ms / 60_000)).join(' · ')} min.
+        You’ll get a chime and a notification at each hand-off, and the controls stay pinned to the top of every
+        page.
+        {elsewhere && <> Regimen {timer.regimen} is still running — starting here replaces it.</>}
+      </p>
     </div>
   )
 }

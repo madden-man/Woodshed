@@ -25,9 +25,10 @@ src/
     theory.ts       The wiki content itself
     curriculum.ts   The hundred sessions: units, the ten-step arc, getRegimen()
   components/
-    Layout.tsx      Masthead, category sidebar, outlet
-    Blocks.tsx      Renders the Block union — one case per kind
-    SessionTimer.tsx  Start/pause/skip, current block, time remaining
+    Layout.tsx        Masthead, session bar, category sidebar, outlet
+    Blocks.tsx        Renders the Block union — one case per kind
+    SessionBar.tsx    Sticky: current block, next up, clock, controls
+    SessionTimer.tsx  The start affordance on a session page
   hooks/
     progress-context.ts   Context + useProgress()
     ProgressProvider.tsx  Loads progress once, writes through on toggle
@@ -35,6 +36,7 @@ src/
     TimerProvider.tsx     Session timer; announces each block hand-off
   lib/
     notify.ts             Chime (Web Audio) + system notifications
+    session-clock.ts      Pure clock arithmetic — pause/resume/skip/locate
   pages/
     Home.tsx           Wiki index, filter, what's up next
     TopicPage.tsx      A single wiki topic
@@ -125,8 +127,11 @@ across the five weights). At every hand-off the timer chimes and raises a
 system notification naming the next block.
 
 It lives in a provider above the router, so it keeps running when you click
-into a wiki topic mid-session — the masthead shows a compact readout that
-links back. Pause, skip to the next block, and stop are all there; the length
+into a wiki topic mid-session. A bar sticks under the masthead for the whole
+session, on every page, carrying the controls with it — pausing never means
+navigating back to the session. It shows which block you're on and of how many,
+its title, what comes next, elapsed against the block's allotted minutes, and
+time left in the session; it re-announces itself at each hand-off. The length
 picker locks while a session is being timed.
 
 `lib/notify.ts` handles both channels. Browsers won't start an AudioContext or
@@ -135,7 +140,11 @@ from the click that starts the timer. If notifications are denied the chime
 still fires and the page says so.
 
 Elapsed time is one scalar derived from timestamps rather than an accumulating
-counter, so backgrounding the tab doesn't cause drift.
+counter, so backgrounding the tab doesn't cause drift. Pausing banks the
+elapsed total and closes the segment; resuming opens a new one, so a pause of
+any length continues rather than restarting. That arithmetic lives in
+`lib/session-clock.ts` as pure functions, deliberately separate from the
+provider so it can be reasoned about without React in the way.
 
 ## Next
 

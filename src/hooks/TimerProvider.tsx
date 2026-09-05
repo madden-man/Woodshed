@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { chime, notify, prime, type Permission } from '../lib/notify'
+import {
+  elapsedAt,
+  locate,
+  pauseAt,
+  resumeAt,
+  skipAt,
+  totalOf,
+  type ClockState,
+} from '../lib/session-clock'
 import { TimerContext, type TimerBlock, type TimerValue } from './timer-context'
 
 interface Plan {
@@ -8,33 +17,12 @@ interface Plan {
 }
 
 const NO_BLOCKS: TimerBlock[] = []
-
-/** Where `elapsed` lands: which block, and how much of it is left. */
-function locate(blocks: TimerBlock[], elapsed: number) {
-  let start = 0
-  for (let i = 0; i < blocks.length; i++) {
-    const end = start + blocks[i].ms
-    if (elapsed < end) return { index: i, remainingMs: end - elapsed }
-    start = end
-  }
-  return { index: blocks.length, remainingMs: 0 }
-}
-
-function totalOf(blocks: TimerBlock[]) {
-  return blocks.reduce((sum, b) => sum + b.ms, 0)
-}
-
-/** Cumulative ms at the start of block `i`. */
-function offsetOf(blocks: TimerBlock[], i: number) {
-  return blocks.slice(0, i).reduce((sum, b) => sum + b.ms, 0)
-}
+const STOPPED: ClockState = { banked: 0, runningSince: null }
 
 export function TimerProvider({ children }: { children: ReactNode }) {
   const [plan, setPlan] = useState<Plan | null>(null)
-  // Elapsed banked from finished run segments; `runningSince` opens a new one.
-  const [banked, setBanked] = useState(0)
-  const [runningSince, setRunningSince] = useState<number | null>(null)
-  // The clock is state, not a Date.now() call during render, so renders stay pure.
+  const [clock, setClock] = useState<ClockState>(STOPPED)
+  // The clock reading is state, not a Date.now() call during render.
   const [now, setNow] = useState(() => Date.now())
   const [permission, setPermission] = useState<Permission>('default')
   // Highest block index already announced, so each boundary fires once.
@@ -42,16 +30,16 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const blocks = plan?.blocks ?? NO_BLOCKS
   const totalMs = totalOf(blocks)
-  const elapsed = banked + (runningSince === null ? 0 : Math.max(0, now - runningSince))
-  const { index: blockIndex, remainingMs } = locate(blocks, elapsed)
+  const elapsed = elapsedAt(clock, now)
+  const { index: blockIndex, remainingMs, intoBlockMs } = locate(blocks, elapsed)
 
-  // One interval while running: advance the clock and announce boundaries.
+  // One interval while running: advance the reading and announce boundaries.
   useEffect(() => {
-    if (runningSince === null || plan === null) return
+    if (clock.runningSince === null || plan === null) return
 
     const id = setInterval(() => {
       const t = Date.now()
-      const ahead = banked + (t - runningSince)
+      const ahead = elapsedAt(clock, t)
       const total = totalOf(plan.blocks)
       const { index } = locate(plan.blocks, ahead)
 
@@ -62,72 +50,64 @@ export function TimerProvider({ children }: { children: ReactNode }) {
           notify('Session complete', `Regimen ${plan.regimen} — all five blocks done.`)
         } else {
           const block = plan.blocks[index]
-          chime('block')
+          const minutes = Math.round(block.ms / 60_000)
+          const left = plan.blocks.length - index - 1
           notify(
-            `Block ${index + 1}: ${block.title}`,
-            `${Math.round(block.ms / 60000)} minutes · regimen ${plan.regimen}`,
+            `Block ${index + 1} of ${plan.blocks.length}: ${block.title}`,
+            `${minutes} min · regimen ${plan.regimen}` + (left > 0 ? ` · ${left} more after this` : ' · last block'),
           )
+          chime('block')
         }
       }
 
-      if (ahead >= total) {
-        setBanked(total)
-        setRunningSince(null)
-      } else {
-        setNow(t)
-      }
+      if (ahead >= total) setClock({ banked: total, runningSince: null })
+      else setNow(t)
     }, 250)
 
     return () => clearInterval(id)
-  }, [runningSince, banked, plan])
+  }, [clock, plan])
 
   const start = useCallback((regimen: number, next: TimerBlock[]) => {
     void prime().then(setPermission)
     const t = Date.now()
     announced.current = 0
     setPlan({ regimen, blocks: next })
-    setBanked(0)
+    setClock({ banked: 0, runningSince: t })
     setNow(t)
-    setRunningSince(t)
   }, [])
 
   const pause = useCallback(() => {
-    if (runningSince === null) return
-    setBanked(banked + (Date.now() - runningSince))
-    setRunningSince(null)
-  }, [banked, runningSince])
-
-  const resume = useCallback(() => {
-    if (runningSince !== null) return
     const t = Date.now()
     setNow(t)
-    setRunningSince(t)
-  }, [runningSince])
+    setClock((c) => pauseAt(c, t))
+  }, [])
+
+  const resume = useCallback(() => {
+    const t = Date.now()
+    setNow(t)
+    setClock((c) => resumeAt(c, t))
+  }, [])
 
   const skip = useCallback(() => {
     if (!plan) return
     const t = Date.now()
-    const at = banked + (runningSince === null ? 0 : t - runningSince)
-    const { index } = locate(plan.blocks, at)
-    const next = Math.min(index + 1, plan.blocks.length)
-    // The user asked for this transition, so don't announce it at them.
-    announced.current = next
-    setBanked(offsetOf(plan.blocks, next))
+    const { index } = locate(plan.blocks, elapsedAt(clock, t))
+    // The user asked for this transition, so don't announce it back at them.
+    announced.current = Math.min(index + 1, plan.blocks.length)
     setNow(t)
-    setRunningSince(runningSince === null ? null : t)
-  }, [plan, banked, runningSince])
+    setClock((c) => skipAt(plan.blocks, c, t))
+  }, [plan, clock])
 
   const stop = useCallback(() => {
     announced.current = 0
     setPlan(null)
-    setBanked(0)
-    setRunningSince(null)
+    setClock(STOPPED)
   }, [])
 
   let status: TimerValue['status'] = 'idle'
   if (plan) {
     if (blockIndex >= blocks.length) status = 'done'
-    else status = runningSince === null ? 'paused' : 'running'
+    else status = clock.runningSince === null ? 'paused' : 'running'
   }
 
   const value: TimerValue = {
@@ -135,7 +115,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     regimen: plan?.regimen ?? null,
     blocks,
     blockIndex,
+    block: blocks[blockIndex] ?? null,
+    nextBlock: blocks[blockIndex + 1] ?? null,
     remainingMs,
+    intoBlockMs,
     totalRemainingMs: Math.max(0, totalMs - elapsed),
     totalMs,
     permission,
