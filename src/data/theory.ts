@@ -1,4 +1,11 @@
 import type { Topic } from './types'
+import { HARMONY } from './wiki/harmony'
+import { SCALES } from './wiki/scales'
+import { TECHNIQUE } from './wiki/technique'
+import { RHYTHM } from './wiki/rhythm'
+import { IMPROVISATION } from './wiki/improvisation'
+import { PRACTICE } from './wiki/practice'
+import { REPERTOIRE } from './wiki/repertoire'
 
 /**
  * The wiki. Add a topic by appending an object here — the index, sidebar and
@@ -9,7 +16,7 @@ import type { Topic } from './types'
  * shows the notes those numbers produce, in a real key, with the arithmetic
  * visible. `inPlainTerms` has to survive without any number at all.
  */
-export const TOPICS: Topic[] = [
+const CORE: Topic[] = [
   {
     slug: 'chord-numbers',
     title: 'What the numbers mean',
@@ -738,7 +745,7 @@ export const TOPICS: Topic[] = [
         notes: ['C', 'E♭', 'A', 'D'],
         fingers: [1, 2, 3, 5],
         hand: 'RH',
-        note: 'An A natural, not a B♭. That natural 6th is what makes it sound finished instead of hanging.',
+        note: 'An A natural, not a B♭. That natural 6th is what makes it sound finished instead of hanging. The shape spans a 9th, which is a stretch for a small hand; if it is too far, play E♭ G A D instead — the rootless form on the rootless minor voicings page.',
       },
       {
         kind: 'list',
@@ -820,6 +827,21 @@ export const TOPICS: Topic[] = [
     ],
     related: ['cycle-of-fourths', 'hand-independence'],
   },
+]
+
+/**
+ * The whole wiki. The core topics above come first; the category files under
+ * `wiki/` hold the rest. Order within a category is the order on the index.
+ */
+export const TOPICS: Topic[] = [
+  ...CORE,
+  ...HARMONY,
+  ...SCALES,
+  ...TECHNIQUE,
+  ...RHYTHM,
+  ...IMPROVISATION,
+  ...PRACTICE,
+  ...REPERTOIRE,
 ]
 
 export function getTopic(slug: string): Topic | undefined {

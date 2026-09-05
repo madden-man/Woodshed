@@ -67,7 +67,7 @@ export default function CurriculumPage() {
             </div>
 
             <div className="related-links unit-reading">
-              {unit.wiki.map((slug) => {
+              {[unit.tuneWiki, ...unit.wiki].map((slug) => {
                 const topic = getTopic(slug)
                 return topic ? (
                   <Link key={slug} to={`/wiki/${slug}`}>

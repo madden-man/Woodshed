@@ -288,18 +288,32 @@ describe('keyboard diagrams', () => {
 
   it('appear on the topics where the question is which notes', () => {
     const withDiagrams = new Set(diagrams.map((d) => d.topic))
-    for (const slug of [
-      'chord-numbers',
-      'major-scale-modes',
-      'melodic-minor-family',
-      'bebop-scales',
-      'diminished-and-blues',
-      'shell-voicings',
-      'rootless-voicings',
-      'upper-structure-triads',
-      'minor-two-five-one',
-    ]) {
+    // Every Scales and Harmony topic answers "which notes" somewhere.
+    const expected = TOPICS.filter((t) => t.category === 'Scales' || t.category === 'Harmony').map((t) => t.slug)
+    expect(expected.length).toBeGreaterThanOrEqual(9)
+    for (const slug of expected) {
       expect(withDiagrams, `${slug} has no keyboard`).toContain(slug)
+    }
+  })
+
+  /**
+   * Any shape drawn for one hand has to fit one hand. A page may teach a
+   * wider shape only if it says so — the shells page warns about its 10ths.
+   */
+  it('fit one hand wherever they name one', () => {
+    for (const t of TOPICS) {
+      const prose = t.blocks
+        .map((b) =>
+          b.kind === 'callout' ? `${b.title} ${b.text}` : b.kind === 'prose' ? b.text : b.kind === 'keyboard' ? (b.note ?? '') : '',
+        )
+        .join(' ')
+      const warns = /10th|9th|stretch|reach/i.test(prose)
+      for (const b of t.blocks) {
+        if (b.kind !== 'keyboard' || !b.hand) continue
+        const p = ascend(b.notes)
+        const width = Math.max(...p) - Math.min(...p)
+        if (width > 12) expect(warns, `${t.slug}: ${b.label} spans ${width} semitones for one hand`).toBe(true)
+      }
     }
   })
 
@@ -417,6 +431,91 @@ describe('keyboard diagrams', () => {
       if (b.kind !== 'keyboard' || !b.span) continue
       // A shared span is only meaningful if the notes say which octave they are in.
       for (const n of b.notes) expect(n, `${b.label}: "${n}" has no octave`).toMatch(/\d$/)
+    }
+  })
+})
+
+describe('rhythm grids', () => {
+  const grids = TOPICS.flatMap((t) =>
+    t.blocks.filter((b) => b.kind === 'rhythm').map((b) => ({ topic: t.slug, block: b })),
+  )
+
+  it('appear on every Rhythm topic', () => {
+    const withGrids = new Set(grids.map((g) => g.topic))
+    for (const t of TOPICS.filter((t) => t.category === 'Rhythm')) {
+      expect(withGrids, `${t.slug} has no rhythm grid`).toContain(t.slug)
+    }
+  })
+
+  it('fill the bar exactly, in strikes and rests only', () => {
+    for (const { topic, block } of grids) {
+      if (block.kind !== 'rhythm') continue
+      const cells = (block.beats ?? 4) * (block.subdivision ?? 2)
+      const hands = [block.left, block.right].filter((h): h is string => h !== undefined)
+      expect(hands.length, `${topic}: ${block.label} has no hand`).toBeGreaterThan(0)
+      for (const hand of hands) {
+        expect(hand.length, `${topic}: ${block.label}`).toBe(cells)
+        expect(hand, `${topic}: ${block.label}`).toMatch(/^[x.]+$/)
+        expect(hand, `${topic}: ${block.label} is silent`).toContain('x')
+      }
+    }
+  })
+})
+
+describe('chord charts', () => {
+  const charts = TOPICS.flatMap((t) =>
+    t.blocks.filter((b) => b.kind === 'changes').map((b) => ({ topic: t.slug, block: b })),
+  )
+
+  const TUNES = [
+    'autumn-leaves',
+    'blue-bossa',
+    'take-the-a-train',
+    'beautiful-love',
+    'solar',
+    'there-will-never-be-another-you',
+    'someday-my-prince-will-come',
+    'all-the-things-you-are',
+  ]
+
+  it('give every tune page exactly one chart, for the whole form', () => {
+    for (const slug of TUNES) {
+      const own = charts.filter((c) => c.topic === slug)
+      expect(own.length, slug).toBe(1)
+      expect(getTopic(slug)?.category, slug).toBe('Repertoire')
+    }
+  })
+
+  it('run a whole number of phrases', () => {
+    for (const { topic, block } of charts) {
+      if (block.kind !== 'changes') continue
+      const n = block.bars.length
+      expect([12, 16, 32].includes(n) || n % 4 === 0, `${topic}: ${block.label} is ${n} bars`).toBe(true)
+    }
+  })
+
+  it('put a chord in every bar, and at most two', () => {
+    for (const { topic, block } of charts) {
+      if (block.kind !== 'changes') continue
+      for (const bar of block.bars) {
+        const chords = bar.trim().split(/\s+/)
+        expect(chords.length, `${topic}: "${bar}"`).toBeGreaterThanOrEqual(1)
+        expect(chords.length, `${topic}: "${bar}"`).toBeLessThanOrEqual(2)
+        for (const c of chords) expect(c, `${topic}: "${bar}"`).toMatch(/^[A-G][♯♭]?/)
+      }
+    }
+  })
+
+  it('start every section inside the chart, in order', () => {
+    for (const { topic, block } of charts) {
+      if (block.kind !== 'changes' || !block.sections) continue
+      let last = 0
+      for (const s of block.sections) {
+        expect(s.at, `${topic}: ${s.name}`).toBeGreaterThan(last)
+        expect(s.at, `${topic}: ${s.name}`).toBeLessThanOrEqual(block.bars.length)
+        expect(s.name.trim(), topic).not.toBe('')
+        last = s.at
+      }
     }
   })
 })

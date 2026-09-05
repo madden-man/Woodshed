@@ -23,7 +23,8 @@ src/
   data/
     types.ts        Topic and Block types — the wiki's content model
     keys.ts         The twelve keys: ii-V-I, minor ii-V-i, upper structures
-    theory.ts       The wiki content itself
+    theory.ts       The eleven core topics, and TOPICS — the whole wiki in one array
+    wiki/           The rest of the wiki, one file per category
     curriculum.ts   The hundred sessions: units, the ten-step arc, getRegimen()
     fingerings.ts   Major scale fingerings, and per-unit fingering guidance
   components/
@@ -75,7 +76,9 @@ makes a hundred sessions followable.
 
 The key advances one step around the cycle of fourths per session, so each key
 comes round eight or nine times paired with different material. Every unit
-links to the wiki topics it builds on.
+links to the wiki topics it builds on (`wiki`) and to the Repertoire page for
+its tune (`tuneWiki`); each step of the arc links to the method it relies on
+(`Variant.wiki`), so the tune block on a session page carries both.
 
 To change the content, edit `UNITS` or `VARIANTS` in `src/data/curriculum.ts`
 — the hundred are generated from them, so the sequence stays consistent.
@@ -121,13 +124,31 @@ by key rather than hard-coded to C.
 
 ## Adding a wiki topic
 
-Append a `Topic` to `TOPICS` in `src/data/theory.ts`. The index, sidebar and
-routing all read from that array, so nothing else needs touching.
+Append a `Topic` to the category's file under `src/data/wiki/` — `harmony.ts`,
+`scales.ts`, `technique.ts`, `rhythm.ts`, `improvisation.ts`, `practice.ts` or
+`repertoire.ts`. The eleven original topics still live in `theory.ts`, which
+concatenates everything into `TOPICS`; the index, sidebar and routing all read
+from that array, so nothing else needs touching.
+
+**Every topic has to be reachable from the curriculum.** A test requires each
+slug to appear in some unit's `wiki`, some unit's `tuneWiki`, or some step's
+`wiki` in `curriculum.ts`. A topic nobody is sent to is a topic nobody reads.
+The reasoning, and the full topic list with its unit assignments, is in
+`docs/adr/0001-grow-the-wiki-into-a-full-course.md`.
 
 Content is composed of `Block`s — `prose`, `list`, `progression`, `table`,
-`callout`, `worked` and `keyboard`. To add a new kind, extend the union in `data/types.ts`
-and add a case to `components/Blocks.tsx`; TypeScript will point at the switch
-if you forget.
+`callout`, `worked`, `keyboard`, `rhythm` and `changes`. To add a new kind,
+extend the union in `data/types.ts` and add a case to `components/Blocks.tsx`;
+TypeScript will point at the switch if you forget.
+
+- `rhythm` is a grid, one row per hand and one cell per subdivision, written
+  as a pattern string: `x` strikes, `.` rests, so the Charleston over eighths
+  is `x..x....`. Keyboards cannot show a rhythm; every Rhythm topic has one of
+  these, and a test holds each pattern to exactly `beats × subdivision` cells.
+- `changes` is a chord chart: one string per bar, two symbols separated by a
+  space where a bar is split, sections named by the bar they start on. Every
+  tune page in Repertoire has exactly one, for the whole form, with the bars
+  the regimen refers to ("the bridge") marked.
 
 **House style: never leave a number unexplained.** Chord shorthand like `1-7-3`
 is unreadable until someone spells it out, so:
@@ -161,23 +182,25 @@ either hold a note or move it by a single key.
 `lib/keyboard.ts` is pure geometry and tested on its own.
 
 A third rule applies to any voicing the wiki teaches: **it has to fit one hand.**
-A test parses the note names back out and rejects a taught shape spanning more
-than an octave. That is why shell voicings are stacked 1-3-7 rather than the
+A test parses the note names back out of every keyboard block that names a
+hand and rejects a shape spanning more than an octave, unless the page says
+so — a 9th or 10th is allowed only where the prose or the diagram's note warns
+about the stretch. Two-handed voicings are drawn as two diagrams, one per hand. That is why shell voicings are stacked 1-3-7 rather than the
 1-7-3 some books use — in a ii–V–I, 1-7-3 puts all three shapes at a 10th or
 wider, where 1-3-7 keeps them inside a 7th and uses one fingering (5-3-1) for
 every chord quality.
 
 ## Tests
 
-`npm test` (vitest, `src/**/*.test.ts`). Four files, no DOM and no mocks —
+`npm test` (vitest, `src/**/*.test.ts`). Seven files, no DOM and no mocks —
 everything worth testing here is pure.
 
 | File | Guards |
 | --- | --- |
 | `lib/session-clock.test.ts` | Pause continues rather than restarts; repeated cycles neither lose nor double time; seek lands on the first instant of any block in either direction, and skip is provably just seek-to-next |
 | `data/keys.test.ts` | The harmony itself — ii/V/I roots, minor ii–V–i roots, chord qualities, and that all 48 upper-structure triads really are ♭II/VI/♭VI/II above their dominant |
-| `data/curriculum.test.ts` | All 100 generate; the arc repeats per unit; keys follow the cycle; minutes split exactly at every session length; **unit material never dictates execution** |
-| `data/theory.test.ts` | Slugs unique and url-safe, related links resolve, table rows match their headers, no empty content, every topic has a jargon-free opener, and worked rows actually explain themselves |
+| `data/curriculum.test.ts` | All 100 generate; the arc repeats per unit; keys follow the cycle; minutes split exactly at every session length; every unit, tune and step links only to topics that exist and every topic is linked from somewhere; **unit material never dictates execution** |
+| `data/theory.test.ts` | Slugs unique and url-safe, related links resolve, table rows match their headers, no empty content, every topic has a jargon-free opener, worked rows actually explain themselves, every Scales and Harmony topic has a keyboard, one-hand shapes fit one hand, rhythm grids fill their bar, and tune charts run a whole number of phrases |
 | `data/fingerings.test.ts` | Every scale spells a real major scale with one letter per degree; no thumb on a black key mid-scale; no finger jumps except across a crossing |
 | `lib/timer-storage.test.ts` | A session round-trips through a refresh with its position intact; running clocks keep running and paused ones stay frozen; stale, future-dated and malformed blobs are refused |
 

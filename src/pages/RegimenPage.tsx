@@ -127,6 +127,18 @@ export default function RegimenPage() {
                   ))}
                 </ul>
                 {block.drill && <Drill drill={block.drill} />}
+                {block.reading && (
+                  <div className="related-links block-reading">
+                    {block.reading.map((slug) => {
+                      const topic = getTopic(slug)
+                      return topic ? (
+                        <Link key={slug} to={`/wiki/${slug}`}>
+                          {topic.title}
+                        </Link>
+                      ) : null
+                    })}
+                  </div>
+                )}
                 <Fingering unitId={regimen.unit.id} blockId={block.id} scaleKey={regimen.key} />
               </div>
               <button

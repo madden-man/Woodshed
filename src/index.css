@@ -2052,3 +2052,148 @@ td.lead-cell {
   letter-spacing: 0.08em;
   fill: var(--muted);
 }
+
+/* Rhythm grids — one row per hand, one cell per subdivision. */
+.rhythm,
+.changes {
+  margin: 0 0 20px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  max-width: 68ch;
+}
+
+.rhythm figcaption,
+.changes figcaption {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.rhythm .note,
+.changes .note {
+  font-size: 14px;
+  color: var(--ink-2);
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 1px solid var(--rule-2);
+  line-height: 1.55;
+}
+
+.rhythm-scroll,
+.changes-scroll {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.rhythm-grid {
+  display: grid;
+  gap: 4px 3px;
+  min-width: 320px;
+}
+
+.rhythm-row {
+  display: contents;
+}
+
+.rhythm-hand {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  align-self: center;
+  padding-right: 8px;
+}
+
+.rhythm-cell {
+  display: block;
+  height: 26px;
+  border: 1px solid var(--rule-2);
+  border-radius: 2px;
+  background: transparent;
+}
+
+.rhythm-cell.is-beat {
+  border-left: 2px solid var(--muted);
+}
+
+.rhythm-cell.is-hit {
+  background: var(--felt);
+  border-color: var(--felt);
+}
+
+.rhythm-count {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.rhythm-count.is-beat {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Chord charts — a line of bars, the section name in the margin. */
+.changes-line {
+  display: grid;
+  grid-template-columns: 4.5em repeat(4, minmax(0, 1fr));
+  gap: 0 2px;
+  min-width: 360px;
+  border-bottom: 1px solid var(--rule);
+  padding: 6px 0;
+}
+
+.changes-line:last-child {
+  border-bottom: 0;
+}
+
+.changes-section {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--felt);
+  align-self: center;
+}
+
+.changes-bar {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 8px 4px;
+  border-left: 1px solid var(--rule-2);
+}
+
+.changes-bar:last-child {
+  border-right: 1px solid var(--rule-2);
+}
+
+.changes-num {
+  position: absolute;
+  top: -2px;
+  left: 3px;
+  font-family: var(--f-mono);
+  font-size: 8px;
+  color: var(--muted);
+}
+
+.changes-chord {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.block-reading {
+  margin-top: 10px;
+}

@@ -28,6 +28,8 @@ export interface Unit {
   target: string
   /** Wiki slugs this unit builds on. */
   wiki: string[]
+  /** The Repertoire page for this unit's tune. */
+  tuneWiki: string
   scales: (key: KeyName) => string[]
   voicings: (key: KeyName) => string[]
   independence: (key: KeyName) => DrillSpec
@@ -60,7 +62,12 @@ export const UNITS: Unit[] = [
     level: '4.0',
     goal: 'Every major scale clean and even, and a shell voicing under every chord.',
     target: 'Every major scale even at ♩=100, hands together.',
-    wiki: ['chord-numbers', 'cycle-of-fourths', 'major-scale-modes', 'shell-voicings', 'tempo-targets'],
+    wiki: [
+      'chord-numbers', 'cycle-of-fourths', 'major-scale-modes', 'shell-voicings', 'tempo-targets',
+      'major-two-five-one', 'seventh-chords-and-inversions', 'fingering-principles', 'arpeggios-and-inversions',
+      'swing-feel', 'counting-and-the-click', 'learning-a-tune', 'song-forms', 'who-to-listen-to',
+    ],
+    tuneWiki: 'autumn-leaves',
     scales: (k) => [
       `${k} major — four octaves up and back down, eighth notes, even tone throughout`,
       `${KEYS[k].I} arpeggio — root position, then 1st, 2nd and 3rd inversion, four octaves each`,
@@ -85,7 +92,12 @@ export const UNITS: Unit[] = [
     level: '4.2',
     goal: 'Modes heard as degrees of one scale, and the first scales in 3rds.',
     target: 'The major scale in 3rds at ♩=88, and modes without stopping to work out the parent.',
-    wiki: ['major-scale-modes', 'shell-voicings'],
+    wiki: [
+      'major-scale-modes', 'shell-voicings',
+      'extensions-and-avoid-notes', 'guide-tone-lines', 'scales-in-thirds', 'touch-and-balance',
+      'rhythmic-displacement', 'reading-a-lead-sheet',
+    ],
+    tuneWiki: 'autumn-leaves',
     scales: (k) => [
       `${k} major in 3rds — up a third, down a third, four octaves`,
       `Dorian on the 2nd degree, Lydian on the 4th, Mixolydian on the 5th, two octaves each`,
@@ -110,7 +122,8 @@ export const UNITS: Unit[] = [
     level: '4.4',
     goal: 'Both Bill Evans forms, voice-led so the top note barely moves.',
     target: 'Rootless A and B on any ii–V–I, top voice moving by step or not at all.',
-    wiki: ['chord-numbers', 'rootless-voicings', 'shell-voicings'],
+    wiki: ['chord-numbers', 'rootless-voicings', 'shell-voicings', 'ear-training'],
+    tuneWiki: 'blue-bossa',
     scales: (k) => [
       `${k} major and Dorian in 3rds, four octaves`,
       `${KEYS[k].ii} arpeggio, all inversions — every m7 shape under the hand`,
@@ -135,7 +148,12 @@ export const UNITS: Unit[] = [
     level: '4.6',
     goal: 'Mixolydian, the bebop scale, and chord tones landing on downbeats by themselves.',
     target: 'Dominant bebop at ♩=100, chord tones landing on the downbeats by themselves.',
-    wiki: ['bebop-scales', 'major-scale-modes', 'hand-independence'],
+    wiki: [
+      'bebop-scales', 'major-scale-modes', 'hand-independence',
+      'turnarounds', 'left-hand-patterns', 'comping-rhythms', 'walking-bass',
+      'chord-tones-first', 'approach-notes-and-enclosures', 'recording-yourself',
+    ],
+    tuneWiki: 'take-the-a-train',
     scales: (k) => [
       `Mixolydian on ${KEYS[k].V}, four octaves`,
       `Dominant bebop descending from the root — the natural 7 as a passing tone. Every downbeat a chord tone.`,
@@ -143,7 +161,7 @@ export const UNITS: Unit[] = [
     ],
     voicings: (k) => [
       `Rootless B with the 13 on ${KEYS[k].V}`,
-      `The ii–V–I in ${k}, then straight into ${nextKey(k)} without stopping`,
+      `The ii–V–I in ${k}, then straight into ${nextKey(k)} without stopping — the I becomes a dominant and turns around into the new key`,
     ],
     independence: (k) => ({
       name: 'Walking bass and comping',
@@ -161,9 +179,14 @@ export const UNITS: Unit[] = [
     level: '4.8',
     goal: 'The three minors told apart by ear, and the minor ii–V–i in the hands.',
     target: 'The minor ii–V–i in all twelve keys, from memory.',
-    wiki: ['melodic-minor-family', 'minor-two-five-one'],
+    wiki: [
+      'melodic-minor-family', 'minor-two-five-one',
+      'rootless-minor-voicings', 'reading-chord-symbols', 'half-diminished-scale', 'harmonic-minor-modes',
+    ],
+    tuneWiki: 'beautiful-love',
     scales: (k) => [
       `${k} natural, harmonic and melodic minor, same tonic, no pause between — hear which note moved`,
+      `The half-diminished scale from ${KEYS[k].halfDim.replace('m7♭5', '')} and harmonic minor's fifth mode from ${KEYS[k].altered.replace('alt', '')}, one octave each — something to play over the first two chords`,
       `${KEYS[k].halfDim} arpeggio, all inversions, four octaves`,
     ],
     voicings: (k) => [
@@ -186,7 +209,12 @@ export const UNITS: Unit[] = [
     level: '5.0',
     goal: 'One scale that carries every alteration, on every dominant, without thinking.',
     target: 'The altered scale on any dominant at ♩=100, without deriving it first.',
-    wiki: ['melodic-minor-family', 'minor-two-five-one'],
+    wiki: [
+      'melodic-minor-family', 'minor-two-five-one',
+      'tritone-substitution', 'altered-dominant-voicings', 'lydian-dominant', 'chromatic-and-enharmonics',
+      'constraint-improvising', 'two-five-vocabulary',
+    ],
+    tuneWiki: 'solar',
     scales: (k) => [
       `Altered scale on ${KEYS[k].V} — melodic minor from a half step above the root`,
       `Lydian dominant on the same root, back to back, for the contrast`,
@@ -211,7 +239,11 @@ export const UNITS: Unit[] = [
     level: '5.2',
     goal: 'Four triads over any dominant, grabbed as shapes rather than worked out.',
     target: 'Four upper structures over any dominant, grabbed as shapes.',
-    wiki: ['upper-structure-triads', 'diminished-and-blues'],
+    wiki: [
+      'upper-structure-triads', 'diminished-and-blues',
+      'secondary-dominants', 'whole-half-diminished', 'polyrhythms', 'playing-outside', 'transcription',
+    ],
+    tuneWiki: 'there-will-never-be-another-you',
     scales: (k) => [
       `Half-whole diminished from ${KEYS[k].V} — ♭9, ♯9 and ♯11 at once`,
       'Diminished 7th arpeggios — three shapes cover all twelve roots, prove it again',
@@ -239,7 +271,11 @@ export const UNITS: Unit[] = [
     level: '5.4',
     goal: 'The idiom that has no theory behind it, next to the scales that are nothing but.',
     target: 'A twelve-bar blues you would actually play for someone.',
-    wiki: ['diminished-and-blues', 'bebop-scales'],
+    wiki: [
+      'diminished-and-blues', 'bebop-scales',
+      'pentatonic-scales', 'whole-tone-scale', 'motivic-development', 'blues-language',
+    ],
+    tuneWiki: 'blues-forms',
     scales: (k) => [
       `${k} blues scale and minor pentatonic, four octaves, then in 3rds`,
       `Whole tone from ${KEYS[k].V}, two octaves`,
@@ -264,14 +300,19 @@ export const UNITS: Unit[] = [
     level: '5.6',
     goal: 'Melody, harmony and bass under two hands at the same time.',
     target: 'One tune as a complete solo arrangement, start to finish.',
-    wiki: ['rootless-voicings', 'upper-structure-triads', 'hand-independence'],
+    wiki: [
+      'rootless-voicings', 'upper-structure-triads', 'hand-independence',
+      'block-chords', 'sixth-diminished', 'quartal-voicings', 'spread-voicings', 'major-bebop-scale',
+      'bach-inventions', 'pedalling', 'arranging-a-tune',
+    ],
+    tuneWiki: 'someday-my-prince-will-come',
     scales: (k) => [
       `${k} in 3rds, four octaves`,
       'Every arpeggio quality on the tonic — maj7, m7, dom7, m7♭5, dim7 — all inversions',
     ],
     voicings: () => [
-      'Block chords — harmonize the melody four-way close, then drop the second voice from the top',
-      'Add the 6th-diminished passing chords underneath',
+      'Block chords — harmonize the melody four-way close, then drop 2: the second voice from the top down an octave into the left hand',
+      'Add the passing chords of the 6th-diminished scale underneath — the diminished chord between every pair of sixth chords',
     ],
     independence: () => ({
       name: 'Bach two-part invention',
@@ -289,7 +330,12 @@ export const UNITS: Unit[] = [
     level: '5.8',
     goal: 'Everything, in every key, at tempo, without a chart in front of you.',
     target: 'All twelve keys at ♩=120, in 3rds, no chart.',
-    wiki: ['cycle-of-fourths', 'tempo-targets', 'major-scale-modes', 'melodic-minor-family'],
+    wiki: [
+      'cycle-of-fourths', 'tempo-targets', 'major-scale-modes', 'melodic-minor-family',
+      'chord-scale-reference', 'reharmonisation', 'building-speed', 'building-a-solo', 'practice-log',
+      'rhythm-changes', 'who-to-listen-to',
+    ],
+    tuneWiki: 'all-the-things-you-are',
     scales: (k) => [
       `${k} — major, Dorian, dominant bebop, altered, blues`,
       'Each of them in 3rds before you move on. This is the level-6 bar.',
@@ -313,6 +359,8 @@ export const UNITS: Unit[] = [
 export interface Variant {
   name: string
   aim: string
+  /** Wiki slugs for the method this step relies on. */
+  wiki?: string[]
   scales: string
   voicings: string
   independence: string
@@ -323,6 +371,7 @@ export interface Variant {
 export const VARIANTS: Variant[] = [
   {
     name: 'Introduce',
+    wiki: ['learning-a-tune'],
     aim: 'Meet the material. Slowly, hands apart, no metronome.',
     scales: 'Hands separately, no click, as slow as it takes to be perfect',
     voicings: 'Left hand alone until the shape is automatic, then right hand alone',
@@ -331,6 +380,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Hands together',
+    wiki: ['learning-a-tune'],
     aim: 'Combine, at half the tempo you think you need.',
     scales: 'Hands together at half your target tempo, no exceptions',
     voicings: 'Both hands, slowly, watching the voice leading rather than the chord symbols',
@@ -339,6 +389,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Rearrange',
+    wiki: ['learning-a-tune', 'song-forms'],
     aim: 'Break the material out of the pattern you learned it in.',
     scales: 'In 3rds — up a third, down a third — and starting from a degree other than the root',
     voicings: 'Start the progression from the V, then from the I. Same voicings, new entry point.',
@@ -347,6 +398,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'First tempo pass',
+    wiki: ['counting-and-the-click'],
     aim: 'The metronome joins, on 2 and 4.',
     scales: 'Click on 2 and 4. Find the fastest clean tempo and write the number down.',
     voicings: 'In time, comping rhythm rather than block-on-the-beat',
@@ -355,6 +407,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Push',
+    wiki: ['building-speed'],
     aim: 'Four bpm past yesterday. Two mistakes and you drop six.',
     scales: 'Yesterday’s clean tempo plus 4 bpm. Break down twice and take it back 6.',
     voicings: 'At the new tempo, left hand only, then hands together',
@@ -363,6 +416,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Apply',
+    wiki: ['constraint-improvising'],
     aim: 'Take it out of the exercise and into the music.',
     scales: 'Only as much scale work as it takes to warm up — the material goes into the tune today',
     voicings: 'Voice the whole tune with this unit’s voicings, no others',
@@ -371,6 +425,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Transpose',
+    wiki: ['learning-a-tune', 'ear-training'],
     aim: 'A fourth up, by ear rather than by shape.',
     scales: 'Same material a fourth above today’s key, worked out by ear',
     voicings: 'The progression a fourth up without writing anything down',
@@ -395,6 +450,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Consolidate',
+    wiki: ['recording-yourself'],
     aim: 'Nothing new. Record a take and listen to it twice.',
     scales: 'Your three slowest keys from this unit, at a comfortable tempo',
     voicings: 'The progression you find hardest, ten times, slowly',
@@ -430,6 +486,8 @@ export interface RegimenBlock {
   items: string[]
   /** Present on the independence block: what each hand actually plays. */
   drill?: DrillSpec
+  /** Wiki slugs behind this block: the tune's page, and the step's method. */
+  reading?: string[]
 }
 
 export interface Regimen {
@@ -496,6 +554,7 @@ export function getRegimen(n: number): Regimen {
       title: 'The tune',
       weight: 0.26,
       items: [...unit.tune(key), variant.tune],
+      reading: [unit.tuneWiki, ...(variant.wiki ?? [])],
     },
   ]
 

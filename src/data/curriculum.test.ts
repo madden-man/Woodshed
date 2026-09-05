@@ -264,9 +264,24 @@ describe('units', () => {
     }
   })
 
+  it('name a Repertoire page for every tune', () => {
+    for (const unit of UNITS) {
+      const topic = TOPICS.find((t) => t.slug === unit.tuneWiki)
+      expect(topic, `unit ${unit.id}: ${unit.tuneWiki}`).toBeDefined()
+      expect(topic?.category, `unit ${unit.id}: ${unit.tuneWiki}`).toBe('Repertoire')
+    }
+  })
+
+  /**
+   * A topic nobody is sent to is a topic nobody reads. Coverage counts a
+   * unit's reading, its tune page, and the method links on each step.
+   */
   it('cover every wiki topic across the curriculum', () => {
-    const linked = new Set(UNITS.flatMap((u) => u.wiki))
-    for (const topic of TOPICS) expect(linked).toContain(topic.slug)
+    const linked = new Set([
+      ...UNITS.flatMap((u) => [...u.wiki, u.tuneWiki]),
+      ...VARIANTS.flatMap((v) => v.wiki ?? []),
+    ])
+    for (const topic of TOPICS) expect(linked, topic.slug).toContain(topic.slug)
   })
 
   it('state a target', () => {
@@ -293,6 +308,18 @@ describe('units', () => {
 })
 
 describe('variants', () => {
+  it('link only to wiki topics that exist', () => {
+    const slugs = new Set(TOPICS.map((t) => t.slug))
+    for (const v of VARIANTS) for (const slug of v.wiki ?? []) expect(slugs, v.name).toContain(slug)
+  })
+
+  it('hand the tune block its reading', () => {
+    const r = getRegimen(1)
+    const tune = r.blocks.find((b) => b.id === 'tune')!
+    expect(tune.reading).toEqual([r.unit.tuneWiki, ...(r.variant.wiki ?? [])])
+    for (const b of r.blocks) if (b.id !== 'tune') expect(b.reading).toBeUndefined()
+  })
+
   it('supply an instruction for each of the four material blocks', () => {
     for (const v of VARIANTS) {
       expect(v.aim.length).toBeGreaterThan(10)
