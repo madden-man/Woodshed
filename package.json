@@ -8,7 +8,8 @@
     "start": "netlify dev",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:check": "netlify dev:exec node scripts/db-check.mjs"
   },
   "dependencies": {
     "mongodb": "^7.6.0",

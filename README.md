@@ -51,6 +51,7 @@ Netlify Functions on the `tommy-data` MongoDB, same pattern as TommysThoughts.
 | --- | --- |
 | `MONGODB_URI` | the Atlas connection string |
 | `MONGODB_DB` | `tommy-data` (optional — the code defaults to it) |
+| `MONGODB_COLLECTION` | `piano-progress` (optional — the code defaults to it) |
 
 Set them on the Netlify site (`netlify env:set`) rather than in a local `.env`;
 `netlify dev` injects them. Nothing reads a committed secret.
@@ -59,9 +60,11 @@ Set them on the Netlify site (`netlify env:set`) rather than in a local `.env`;
 netlify/
   lib/mongo.mjs           shared client, one per cold start
   functions/progress.mjs  GET/POST /api/progress
+scripts/
+  db-check.mjs            npm run db:check — verifies the connection
 ```
 
-`woodshed_progress` holds one document per practice day:
+`piano-progress` holds one document per practice day, keyed on `date`:
 
 ```json
 { "date": "2026-09-05", "key": "C", "completed": ["warmup", "scales"], "updatedAt": "..." }

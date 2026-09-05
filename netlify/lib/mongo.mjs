@@ -20,4 +20,5 @@ export async function collection(name) {
   return client.db(process.env.MONGODB_DB || 'tommy-data').collection(name)
 }
 
-export const PROGRESS = 'woodshed_progress'
+/** Daily practice check-offs. Override with MONGODB_COLLECTION if it ever moves. */
+export const PROGRESS = process.env.MONGODB_COLLECTION || 'piano-progress'
