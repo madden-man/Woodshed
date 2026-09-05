@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  clampIndex,
   elapsedAt,
   locate,
   offsetOf,
   pauseAt,
   resumeAt,
+  seekAt,
   skipAt,
   totalOf,
   type ClockBlock,
@@ -131,5 +133,58 @@ describe('skip', () => {
       seen.push(locate(blocks, s.banked).index)
     }
     expect(seen).toEqual([0, 1, 2, 3, 4, 5])
+  })
+})
+
+describe('seek', () => {
+  const t = 77_000
+  const running: ClockState = { banked: 8 * M, runningSince: t }
+  const paused: ClockState = { banked: 8 * M, runningSince: null }
+
+  it('starts any block at that block’s offset', () => {
+    for (let i = 0; i <= blocks.length; i++) {
+      expect(seekAt(blocks, running, i, t).banked).toBe(offsetOf(blocks, i))
+    }
+  })
+
+  it('lands exactly on the first instant of the chosen block', () => {
+    for (let i = 0; i < blocks.length; i++) {
+      const at = seekAt(blocks, paused, i, t)
+      const where = locate(blocks, elapsedAt(at, t))
+      expect(where.index).toBe(i)
+      expect(where.intoBlockMs).toBe(0)
+      expect(where.remainingMs).toBe(blocks[i].ms)
+    }
+  })
+
+  it('goes backwards as readily as forwards', () => {
+    const atFourth = seekAt(blocks, running, 3, t)
+    const backToFirst = seekAt(blocks, atFourth, 0, t)
+    expect(backToFirst.banked).toBe(0)
+    expect(locate(blocks, elapsedAt(backToFirst, t)).index).toBe(0)
+  })
+
+  it('keeps running when running and paused when paused', () => {
+    expect(seekAt(blocks, running, 2, t).runningSince).toBe(t)
+    expect(seekAt(blocks, paused, 2, t).runningSince).toBeNull()
+  })
+
+  it('clamps anything out of range', () => {
+    expect(seekAt(blocks, paused, -3, t).banked).toBe(0)
+    expect(seekAt(blocks, paused, 99, t).banked).toBe(totalOf(blocks))
+    expect(clampIndex(blocks, Number.NaN)).toBe(0)
+    expect(clampIndex(blocks, 2.9)).toBe(2)
+  })
+
+  it('is what skip is built from', () => {
+    for (let i = 0; i < blocks.length; i++) {
+      const at = seekAt(blocks, paused, i, t)
+      expect(skipAt(blocks, at, t)).toEqual(seekAt(blocks, at, i + 1, t))
+    }
+  })
+
+  it('seeking to the end finishes the session', () => {
+    const done = seekAt(blocks, running, blocks.length, t)
+    expect(locate(blocks, elapsedAt(done, t)).index).toBe(blocks.length)
   })
 })

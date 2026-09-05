@@ -56,8 +56,26 @@ export default function SessionBar() {
         </div>
 
         <div className="bar-progress">
-          <div className="bar-track" aria-hidden="true">
-            <i style={{ width: `${pct}%` }} />
+          <div className="bar-track" role="group" aria-label="Jump to a block">
+            {timer.blocks.map((b, i) => {
+              const done = i < timer.blockIndex
+              const isCurrent = i === timer.blockIndex
+              const fill = done ? 100 : isCurrent ? pct : 0
+              return (
+                <button
+                  key={b.id}
+                  type="button"
+                  className={isCurrent ? 'bar-seg is-current' : done ? 'bar-seg is-done' : 'bar-seg'}
+                  style={{ flexGrow: b.ms }}
+                  title={`${i + 1}. ${b.title} — ${Math.round(b.ms / 60_000)} min`}
+                  aria-label={`Jump to block ${i + 1}, ${b.title}`}
+                  aria-current={isCurrent || undefined}
+                  onClick={() => timer.goTo(i)}
+                >
+                  <i style={{ width: `${fill}%` }} />
+                </button>
+              )
+            })}
           </div>
           <div className="bar-meta">
             <span>

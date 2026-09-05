@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { chime, notify, prime, type Permission } from '../lib/notify'
 import {
+  clampIndex,
   elapsedAt,
   locate,
+  offsetOf,
   pauseAt,
   resumeAt,
+  seekAt,
   skipAt,
   totalOf,
   type ClockState,
@@ -67,12 +70,14 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(id)
   }, [clock, plan])
 
-  const start = useCallback((regimen: number, next: TimerBlock[]) => {
+  const start = useCallback((regimen: number, next: TimerBlock[], fromIndex = 0) => {
     void prime().then(setPermission)
     const t = Date.now()
-    announced.current = 0
+    // Starting at a block is not arriving at it, so don't announce it.
+    const target = Math.min(clampIndex(next, fromIndex), Math.max(0, next.length - 1))
+    announced.current = target
     setPlan({ regimen, blocks: next })
-    setClock({ banked: 0, runningSince: t })
+    setClock({ banked: offsetOf(next, target), runningSince: t })
     setNow(t)
   }, [])
 
@@ -97,6 +102,19 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     setNow(t)
     setClock((c) => skipAt(plan.blocks, c, t))
   }, [plan, clock])
+
+  const goTo = useCallback(
+    (index: number) => {
+      if (!plan) return
+      const t = Date.now()
+      // Chosen, not arrived at — and set below the target so a later boundary
+      // still announces, including when jumping backwards.
+      announced.current = clampIndex(plan.blocks, index)
+      setNow(t)
+      setClock((c) => seekAt(plan.blocks, c, index, t))
+    },
+    [plan],
+  )
 
   const stop = useCallback(() => {
     announced.current = 0
@@ -126,6 +144,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     pause,
     resume,
     skip,
+    goTo,
     stop,
   }
 

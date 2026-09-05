@@ -26,7 +26,7 @@ export default function SessionTimer({ regimen, blocks }: Props) {
       <p className="timer-hint">
         {formatClock(total)} across {blocks.length} blocks — {blocks.map((b) => Math.round(b.ms / 60_000)).join(' · ')} min.
         You’ll get a chime and a notification at each hand-off, and the controls stay pinned to the top of every
-        page.
+        page. To pick up mid-session, use <span className="mono">Start here</span> on any block below instead.
         {elsewhere && <> Regimen {timer.regimen} is still running — starting here replaces it.</>}
       </p>
     </div>

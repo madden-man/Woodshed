@@ -102,6 +102,19 @@ export default function RegimenPage() {
                   {minutes[i]}
                   <em>min</em>
                 </div>
+                {isActive ? (
+                  <span className="block-here">Running</span>
+                ) : (
+                  <button
+                    type="button"
+                    className="block-start"
+                    onClick={() =>
+                      timingThis ? timer.goTo(i) : timer.start(number, timerBlocks, i)
+                    }
+                  >
+                    {timingThis ? 'Jump here' : 'Start here'}
+                  </button>
+                )}
               </div>
               <div className="block-body">
                 <h2>{block.title}</h2>

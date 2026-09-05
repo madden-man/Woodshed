@@ -121,7 +121,7 @@ everything worth testing here is pure.
 
 | File | Guards |
 | --- | --- |
-| `lib/session-clock.test.ts` | Pause continues rather than restarts; repeated cycles neither lose nor double time; skip preserves paused-ness and clamps at the end |
+| `lib/session-clock.test.ts` | Pause continues rather than restarts; repeated cycles neither lose nor double time; seek lands on the first instant of any block in either direction, and skip is provably just seek-to-next |
 | `data/keys.test.ts` | The harmony itself — ii/V/I roots, minor ii–V–i roots, chord qualities, and that all 48 upper-structure triads really are ♭II/VI/♭VI/II above their dominant |
 | `data/curriculum.test.ts` | All 100 generate; the arc repeats per unit; keys follow the cycle; minutes split exactly at every session length; **unit material never dictates execution** |
 | `data/theory.test.ts` | Slugs unique and url-safe, related links resolve, table rows match their headers, no empty content, every topic has a jargon-free opener, and worked rows actually explain themselves |
@@ -202,6 +202,12 @@ loads every session's progress once and applies toggles optimistically.
 Each block gets the minutes the length picker gives it (30/45/60/90 split
 across the five weights). At every hand-off the timer chimes and raises a
 system notification naming the next block.
+
+You do not have to start at the beginning. Every block on a session page has a
+**Start here** button, and once a session is running the progress bar becomes a
+row of segments — one per block, sized by its minutes — that you can click to
+jump to any of them, forwards or back. Arriving somewhere you chose is not
+announced; only a boundary the clock crosses on its own is.
 
 It lives in a provider above the router, so it keeps running when you click
 into a wiki topic mid-session. A bar sticks under the masthead for the whole

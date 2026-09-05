@@ -25,11 +25,14 @@ export interface TimerValue {
   totalRemainingMs: number
   totalMs: number
   permission: Permission
-  start: (regimen: number, blocks: TimerBlock[]) => void
+  /** Begin a session. `fromIndex` starts partway in — block 3, say. */
+  start: (regimen: number, blocks: TimerBlock[], fromIndex?: number) => void
   pause: () => void
   resume: () => void
   /** Jump to the start of the next block. */
   skip: () => void
+  /** Jump to the start of any block, forwards or back. */
+  goTo: (index: number) => void
   stop: () => void
 }
 

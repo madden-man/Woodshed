@@ -68,12 +68,27 @@ export function resumeAt(state: ClockState, now: number): ClockState {
   return { banked: state.banked, runningSince: now }
 }
 
+/**
+ * Jump to the start of any block, keeping running/paused as it was. Works in
+ * both directions — going back to re-run a block is as valid as skipping on.
+ * An index of blocks.length means "past the end", i.e. finished.
+ */
+export function seekAt(blocks: ClockBlock[], state: ClockState, index: number, now: number): ClockState {
+  const target = clampIndex(blocks, index)
+  return {
+    banked: offsetOf(blocks, target),
+    runningSince: state.runningSince === null ? null : now,
+  }
+}
+
 /** Jump to the start of the next block, keeping running/paused as it was. */
 export function skipAt(blocks: ClockBlock[], state: ClockState, now: number): ClockState {
   const { index } = locate(blocks, elapsedAt(state, now))
-  const next = Math.min(index + 1, blocks.length)
-  return {
-    banked: offsetOf(blocks, next),
-    runningSince: state.runningSince === null ? null : now,
-  }
+  return seekAt(blocks, state, index + 1, now)
+}
+
+/** Clamp a block index into range; anything past the end is the end. */
+export function clampIndex(blocks: ClockBlock[], index: number): number {
+  if (!Number.isFinite(index)) return 0
+  return Math.min(Math.max(Math.trunc(index), 0), blocks.length)
 }
