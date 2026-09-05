@@ -41,7 +41,7 @@ export const UNITS: Unit[] = [
     level: '4.0',
     goal: 'Every major scale clean and even, and a shell voicing under every chord.',
     target: 'Every major scale even at ♩=100, hands together.',
-    wiki: ['cycle-of-fourths', 'major-scale-modes', 'shell-voicings', 'tempo-targets'],
+    wiki: ['chord-numbers', 'cycle-of-fourths', 'major-scale-modes', 'shell-voicings', 'tempo-targets'],
     scales: (k) => [
       `${k} major — four octaves up and back down, eighth notes, even tone throughout`,
       `${KEYS[k].I} arpeggio — root position, then 1st, 2nd and 3rd inversion, four octaves each`,
@@ -79,7 +79,7 @@ export const UNITS: Unit[] = [
     level: '4.4',
     goal: 'Both Bill Evans forms, voice-led so the top note barely moves.',
     target: 'Rootless A and B on any ii–V–I, top voice moving by step or not at all.',
-    wiki: ['rootless-voicings', 'shell-voicings'],
+    wiki: ['chord-numbers', 'rootless-voicings', 'shell-voicings'],
     scales: (k) => [
       `${k} major and Dorian in 3rds, four octaves`,
       `${KEYS[k].ii} arpeggio, all inversions — every m7 shape under the hand`,

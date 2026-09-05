@@ -1694,3 +1694,118 @@ td.lead-cell {
     overflow-x: auto;
   }
 }
+
+/* ---------------- plain terms & worked examples ---------------- */
+
+.plainly {
+  padding: 15px 18px;
+  margin-bottom: 24px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--brass);
+  border-radius: 0 3px 3px 0;
+  max-width: 66ch;
+}
+
+.plainly-label {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin-bottom: 5px;
+}
+
+.plainly p {
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.worked {
+  margin: 0 0 20px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  max-width: 68ch;
+}
+
+.worked figcaption {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 11px;
+}
+
+.worked-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.worked-row {
+  display: grid;
+  grid-template-columns: minmax(88px, auto) minmax(0, 1fr) minmax(96px, auto);
+  gap: 6px 18px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.worked-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.worked-symbol {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.worked-means {
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 1.45;
+}
+
+.worked-gives {
+  font-family: var(--f-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--felt);
+  text-align: right;
+}
+
+.worked .note {
+  font-size: 14px;
+  color: var(--ink-2);
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 1px solid var(--rule-2);
+  line-height: 1.55;
+}
+
+@media (max-width: 700px) {
+  .worked-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 3px 14px;
+  }
+
+  .worked-symbol {
+    grid-column: 1;
+  }
+
+  .worked-gives {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .worked-means {
+    grid-column: 1 / -1;
+  }
+}

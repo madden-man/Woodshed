@@ -17,6 +17,11 @@ export default function TopicPage() {
         <p className="lede">{topic.summary}</p>
       </div>
 
+      <aside className="plainly">
+        <div className="plainly-label">In plain terms</div>
+        <p>{topic.inPlainTerms}</p>
+      </aside>
+
       <Blocks blocks={topic.blocks} />
 
       {topic.related && topic.related.length > 0 && (

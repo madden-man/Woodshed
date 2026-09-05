@@ -30,6 +30,35 @@ describe('the wiki', () => {
     }
   })
 
+  it('explains every topic in plain terms before the jargon starts', () => {
+    for (const t of TOPICS) {
+      expect(t.inPlainTerms.length, t.slug).toBeGreaterThan(80)
+    }
+  })
+
+  /**
+   * The plain-terms opener is the one place a reader who does not yet know the
+   * shorthand has to be able to land. A number in it defeats the purpose.
+   */
+  it('keeps chord shorthand out of the plain-terms opener', () => {
+    for (const t of TOPICS) {
+      expect(t.inPlainTerms, t.slug).not.toMatch(/[♭♯]\d|\b\d-\d|\bii?[-–]V\b|\bm7\b|\bmaj7\b/)
+    }
+  })
+
+  it('shows its work wherever it leans on numbers', () => {
+    // Any topic using a stacking formula like 1-7-3 must also spell it out.
+    for (const t of TOPICS) {
+      const prose = t.blocks
+        .filter((b) => b.kind === 'prose' || b.kind === 'callout')
+        .map((b) => (b.kind === 'prose' ? b.text : b.text))
+        .join(' ')
+      if (/\d-\d-\d/.test(prose)) {
+        expect(t.blocks.some((b) => b.kind === 'worked'), `${t.slug} uses a formula but never works one`).toBe(true)
+      }
+    }
+  })
+
   it('resolves every related link', () => {
     for (const t of TOPICS) {
       for (const slug of t.related ?? []) {
@@ -69,6 +98,10 @@ describe('content blocks', () => {
           case 'table':
             expect(block.head.length, t.slug).toBeGreaterThan(0)
             break
+          case 'worked':
+            expect(block.label.trim(), t.slug).not.toBe('')
+            expect(block.rows.length, t.slug).toBeGreaterThan(0)
+            break
         }
       }
     }
@@ -80,6 +113,20 @@ describe('content blocks', () => {
         if (block.kind !== 'table') continue
         for (const row of block.rows) {
           expect(row, `${t.slug}: ${block.head.join('/')}`).toHaveLength(block.head.length)
+        }
+      }
+    }
+  })
+
+  it('gives every worked row a symbol, a meaning and a result', () => {
+    for (const t of TOPICS) {
+      for (const block of t.blocks) {
+        if (block.kind !== 'worked') continue
+        for (const row of block.rows) {
+          expect(row.symbol.trim(), `${t.slug}/${block.label}`).not.toBe('')
+          expect(row.gives.trim(), `${t.slug}/${block.label}`).not.toBe('')
+          // The middle column is the explanation; a bare restatement is useless.
+          expect(row.means.length, `${t.slug}/${block.label}: ${row.symbol}`).toBeGreaterThan(15)
         }
       }
     }

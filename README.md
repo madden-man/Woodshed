@@ -96,9 +96,23 @@ changes even as the material inside it does.
 Append a `Topic` to `TOPICS` in `src/data/theory.ts`. The index, sidebar and
 routing all read from that array, so nothing else needs touching.
 
-Content is composed of `Block`s — `prose`, `list`, `progression`, `table` and
-`callout`. To add a new kind, extend the union in `data/types.ts` and add a case
-to `components/Blocks.tsx`; TypeScript will point at the switch if you forget.
+Content is composed of `Block`s — `prose`, `list`, `progression`, `table`,
+`callout` and `worked`. To add a new kind, extend the union in `data/types.ts`
+and add a case to `components/Blocks.tsx`; TypeScript will point at the switch
+if you forget.
+
+**House style: never leave a number unexplained.** Chord shorthand like `1-7-3`
+is unreadable until someone spells it out, so:
+
+- Every topic opens with `inPlainTerms` — the same idea with the jargon taken
+  out. If it can't be written without a number, the topic isn't understood well
+  enough to write the rest.
+- Any topic leaning on numbers carries a `worked` block: the shorthand, what it
+  means in words, and the notes it actually produces, in a real key. `1-7-3` on
+  a Dm7 becomes "D, then the ♭7 above it, then the ♭3 above that → D – C – F".
+
+Both are enforced by tests, including a minimum length on a worked row's
+explanation — it caught three rows where I'd written "the tritone" and moved on.
 
 ## Tests
 
@@ -110,7 +124,7 @@ everything worth testing here is pure.
 | `lib/session-clock.test.ts` | Pause continues rather than restarts; repeated cycles neither lose nor double time; skip preserves paused-ness and clamps at the end |
 | `data/keys.test.ts` | The harmony itself — ii/V/I roots, minor ii–V–i roots, chord qualities, and that all 48 upper-structure triads really are ♭II/VI/♭VI/II above their dominant |
 | `data/curriculum.test.ts` | All 100 generate; the arc repeats per unit; keys follow the cycle; minutes split exactly at every session length; **unit material never dictates execution** |
-| `data/theory.test.ts` | Slugs unique and url-safe, related links resolve, table rows match their headers, no empty content |
+| `data/theory.test.ts` | Slugs unique and url-safe, related links resolve, table rows match their headers, no empty content, every topic has a jargon-free opener, and worked rows actually explain themselves |
 | `data/fingerings.test.ts` | Every scale spells a real major scale with one letter per degree; no thumb on a black key mid-scale; no finger jumps except across a crossing |
 
 The execution-directive test is the interesting one. Unit material says *what*

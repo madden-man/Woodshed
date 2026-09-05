@@ -80,5 +80,22 @@ function BlockView({ block }: { block: Block }) {
           <p>{block.text}</p>
         </aside>
       )
+
+    case 'worked':
+      return (
+        <figure className="worked">
+          <figcaption>{block.label}</figcaption>
+          <div className="worked-rows">
+            {block.rows.map((row, i) => (
+              <div key={i} className="worked-row">
+                <span className="worked-symbol">{row.symbol}</span>
+                <span className="worked-means">{row.means}</span>
+                <span className="worked-gives">{row.gives}</span>
+              </div>
+            ))}
+          </div>
+          {block.note && <p className="note">{block.note}</p>}
+        </figure>
+      )
   }
 }
