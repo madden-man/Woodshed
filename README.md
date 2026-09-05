@@ -125,7 +125,7 @@ Append a `Topic` to `TOPICS` in `src/data/theory.ts`. The index, sidebar and
 routing all read from that array, so nothing else needs touching.
 
 Content is composed of `Block`s — `prose`, `list`, `progression`, `table`,
-`callout` and `worked`. To add a new kind, extend the union in `data/types.ts`
+`callout`, `worked` and `keyboard`. To add a new kind, extend the union in `data/types.ts`
 and add a case to `components/Blocks.tsx`; TypeScript will point at the switch
 if you forget.
 
@@ -141,6 +141,14 @@ is unreadable until someone spells it out, so:
 
 Both are enforced by tests, including a minimum length on a worked row's
 explanation — it caught three rows where I'd written "the tritone" and moved on.
+
+Anywhere the answer is "which notes", there is a `keyboard` block. Notes are
+given as names in playing order and laid out ascending — each at the next
+occurrence of its pitch class above the last — so `['D', 'F', 'C']` draws the C
+an octave up, exactly where the hand puts it. Marked keys get a dot rather than
+a fill: filling them turned a seven-note scale into a solid block and left a
+marked black key nowhere to go. The first note is the root and takes the accent
+colour. `lib/keyboard.ts` is pure geometry and tested on its own.
 
 A third rule applies to any voicing the wiki teaches: **it has to fit one hand.**
 A test parses the note names back out and rejects a taught shape spanning more

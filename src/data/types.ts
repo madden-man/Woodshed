@@ -24,6 +24,7 @@ export type Block =
   | { kind: 'table'; head: string[]; rows: string[][] }
   | { kind: 'callout'; title: string; text: string }
   | { kind: 'worked'; label: string; rows: WorkedRow[]; note?: string }
+  | { kind: 'keyboard'; label: string; notes: string[]; note?: string; startOctave?: number }
 
 export interface Topic {
   slug: string

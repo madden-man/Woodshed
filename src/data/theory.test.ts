@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { TOPICS, getTopic } from './theory'
+import { ascend, layoutKeyboard } from '../lib/keyboard'
 import { CATEGORIES } from './types'
 
 describe('the wiki', () => {
@@ -101,6 +102,10 @@ describe('content blocks', () => {
           case 'worked':
             expect(block.label.trim(), t.slug).not.toBe('')
             expect(block.rows.length, t.slug).toBeGreaterThan(0)
+            break
+          case 'keyboard':
+            expect(block.label.trim(), t.slug).not.toBe('')
+            expect(block.notes.length, t.slug).toBeGreaterThan(1)
             break
         }
       }
@@ -260,5 +265,68 @@ describe('shell voicings are spelled correctly', () => {
       .map((b) => (b.kind === 'prose' ? b.text : b.kind === 'callout' ? `${b.title} ${b.text}` : ''))
       .join(' ')
     expect(text).toMatch(/bottom to top/i)
+  })
+})
+
+describe('keyboard diagrams', () => {
+  const diagrams = TOPICS.flatMap((t) =>
+    t.blocks.filter((b) => b.kind === 'keyboard').map((b) => ({ topic: t.slug, block: b })),
+  )
+
+  it('appear on the topics where the question is which notes', () => {
+    const withDiagrams = new Set(diagrams.map((d) => d.topic))
+    for (const slug of [
+      'chord-numbers',
+      'major-scale-modes',
+      'melodic-minor-family',
+      'bebop-scales',
+      'diminished-and-blues',
+      'shell-voicings',
+      'rootless-voicings',
+      'upper-structure-triads',
+      'minor-two-five-one',
+    ]) {
+      expect(withDiagrams, `${slug} has no keyboard`).toContain(slug)
+    }
+  })
+
+  it('name notes the keyboard can actually draw', () => {
+    for (const { topic, block } of diagrams) {
+      if (block.kind !== 'keyboard') continue
+      expect(() => layoutKeyboard(block.notes), `${topic}: ${block.label}`).not.toThrow()
+    }
+  })
+
+  it('light every note they were given', () => {
+    for (const { topic, block } of diagrams) {
+      if (block.kind !== 'keyboard') continue
+      const { keys } = layoutKeyboard(block.notes)
+      const lit = keys.filter((k) => k.highlight !== 'none')
+      expect(lit.length, `${topic}: ${block.label}`).toBe(new Set(ascend(block.notes)).size)
+    }
+  })
+
+  it('stay small enough to read without scrolling on a phone', () => {
+    for (const { topic, block } of diagrams) {
+      if (block.kind !== 'keyboard') continue
+      const { width } = layoutKeyboard(block.notes)
+      expect(width, `${topic}: ${block.label} is ${width}px wide`).toBeLessThanOrEqual(22 * 15)
+    }
+  })
+
+  /** A diagram whose notes contradict the prose beside it is worse than none. */
+  it('match the chord the worked rows spell, where both exist', () => {
+    const shell = TOPICS.find((t) => t.slug === 'shell-voicings')!
+    const spelled = shell.blocks.find((b) => b.kind === 'worked' && b.label === 'The ii–V–I in C, spelled out')
+    if (spelled?.kind !== 'worked') throw new Error('missing block')
+
+    for (const row of spelled.rows) {
+      const chord = row.symbol.split(' as ')[0]
+      const diagram = shell.blocks.find(
+        (b) => b.kind === 'keyboard' && b.label === `${chord} as 1-3-7`,
+      )
+      if (diagram?.kind !== 'keyboard') throw new Error(`no keyboard for ${chord}`)
+      expect(diagram.notes.join(' – '), chord).toBe(row.gives)
+    }
   })
 })

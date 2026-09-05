@@ -1984,3 +1984,56 @@ td.lead-cell {
     text-align: left;
   }
 }
+
+/* ---------------- keyboard diagrams ---------------- */
+
+.keyboard-figure {
+  margin: 0 0 20px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  max-width: 68ch;
+}
+
+.keyboard-figure figcaption {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.keyboard-scroll {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.keyboard {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.keyboard-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--brass);
+}
+
+.keyboard-label.is-root {
+  fill: var(--felt);
+}
+
+.keyboard-figure .note {
+  font-size: 14px;
+  color: var(--ink-2);
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 1px solid var(--rule-2);
+  line-height: 1.55;
+}

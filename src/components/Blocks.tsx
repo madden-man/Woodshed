@@ -1,4 +1,5 @@
 import type { Block } from '../data/types'
+import Keyboard from './Keyboard'
 
 /** Renders the block union from a topic. One case per Block kind. */
 export default function Blocks({ blocks }: { blocks: Block[] }) {
@@ -79,6 +80,17 @@ function BlockView({ block }: { block: Block }) {
           <div className="callout-title">{block.title}</div>
           <p>{block.text}</p>
         </aside>
+      )
+
+    case 'keyboard':
+      return (
+        <figure className="keyboard-figure">
+          <figcaption>{block.label}</figcaption>
+          <div className="keyboard-scroll">
+            <Keyboard notes={block.notes} startOctave={block.startOctave} />
+          </div>
+          {block.note && <p className="note">{block.note}</p>}
+        </figure>
       )
 
     case 'worked':

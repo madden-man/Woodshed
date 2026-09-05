@@ -37,6 +37,12 @@ export const TOPICS: Topic[] = [
         note: 'Numbers above 7 are just the low numbers moved up an octave: 9 is 2, 11 is 4, 13 is 6. They get the bigger name because they sit above the seventh rather than inside the basic chord.',
       },
       {
+        kind: 'keyboard',
+        label: 'The C major scale — the notes you are counting',
+        notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'],
+        note: 'Seven white keys and back to the start. Every number in every chord symbol is counted along these, then bent if the symbol says so.',
+      },
+      {
         kind: 'prose',
         text: 'A flat or sharp in front lowers or raises that note by a half step. So ♭9 over C is D♭, and ♯11 over C is F♯. That is the whole system — count up the scale, then bend the note if the symbol says to.',
       },
@@ -50,6 +56,22 @@ export const TOPICS: Topic[] = [
           { symbol: 'Cm7♭5', means: 'the 3rd, 5th and 7th all flattened', gives: 'C E♭ G♭ B♭' },
         ],
         note: 'Notice how little changes between them. One flattened note is the entire difference between a major 7th and a dominant 7th chord.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'Cmaj7 — 1, 3, 5, 7',
+        notes: ['C', 'E', 'G', 'B'],
+      },
+      {
+        kind: 'keyboard',
+        label: 'C7 — the same, with the 7th flattened',
+        notes: ['C', 'E', 'G', 'B♭'],
+        note: 'One key to the left, and the chord stops sounding at rest and starts wanting to move somewhere.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'Cm7 — the 3rd flattened as well',
+        notes: ['C', 'E♭', 'G', 'B♭'],
       },
       {
         kind: 'prose',
@@ -135,6 +157,12 @@ export const TOPICS: Topic[] = [
         note: 'Seven modes, one set of notes. Learning them as seven separate fingerings is the level-4 mistake; learning them as positions inside one scale is what makes them usable at speed.',
       },
       {
+        kind: 'keyboard',
+        label: 'D dorian — the same white keys, started on D',
+        notes: ['D', 'E', 'F', 'G', 'A', 'B', 'C', 'D'],
+        note: 'Not one black key anywhere. The only thing that changed from C major is where you begin and end.',
+      },
+      {
         kind: 'prose',
         text: 'Each mode gets its character from how it differs from the major scale on the same root. D dorian is not "C major from D" to your ear — it sounds like a D minor scale with one bright note in it. Compare it to D major to hear why.',
       },
@@ -192,6 +220,17 @@ export const TOPICS: Topic[] = [
         note: 'Melodic minor is a major scale with one flattened note: the 3rd. That is genuinely all it is, and thinking of it that way is faster than thinking of it as a minor scale with things raised.',
       },
       {
+        kind: 'keyboard',
+        label: 'C natural minor — three flats',
+        notes: ['C', 'D', 'E♭', 'F', 'G', 'A♭', 'B♭', 'C'],
+      },
+      {
+        kind: 'keyboard',
+        label: 'C melodic minor — only the ♭3 is left',
+        notes: ['C', 'D', 'E♭', 'F', 'G', 'A', 'B', 'C'],
+        note: 'Put the A and the B back and you have a major scale with one black key in it. That is the whole scale.',
+      },
+      {
         kind: 'prose',
         text: 'Classical players change melodic minor on the way down. Jazz players do not — they use the ascending form in both directions and call it the jazz minor. Its modes are where the real value lies, because two of them are the scales you will reach for over dominant chords for the rest of your playing life.',
       },
@@ -218,6 +257,12 @@ export const TOPICS: Topic[] = [
         ],
         note: 'Seven notes, and they hand you the 3rd, the ♭7 and every alteration there is. That one sentence — "melodic minor from a half step above the root" — replaces memorising ♭9, ♯9, ♯11 and ♭13 as four separate objects.',
       },
+      {
+        kind: 'keyboard',
+        label: 'A♭ melodic minor — what you play over G7alt',
+        notes: ['A♭', 'B♭', 'C♭', 'D♭', 'E♭', 'F', 'G', 'A♭'],
+        note: 'Find G on the keyboard, go up one key to A♭, and play a melodic minor scale from there. Every alteration on the G7 is in it.',
+      },
     ],
     related: ['chord-numbers', 'upper-structure-triads', 'minor-two-five-one'],
   },
@@ -243,6 +288,17 @@ export const TOPICS: Topic[] = [
           { symbol: 'Check them', means: 'G7 is spelled G B D F', gives: 'all four are chord tones' },
         ],
         note: 'Nothing is being steered here. The extra note shifts everything by one eighth, and the chord tones fall on the beat by themselves for a whole octave. That is the entire trick.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'G mixolydian — seven notes',
+        notes: ['G', 'A', 'B', 'C', 'D', 'E', 'F', 'G'],
+      },
+      {
+        kind: 'keyboard',
+        label: 'G dominant bebop — the F♯ added',
+        notes: ['G', 'A', 'B', 'C', 'D', 'E', 'F', 'F♯', 'G'],
+        note: 'One extra black key, squeezed between the F and the G. Eight notes now, which is why a bar of eighth notes lines up.',
       },
       {
         kind: 'table',
@@ -288,6 +344,12 @@ export const TOPICS: Topic[] = [
         note: 'Compare this to the altered scale. Both give you ♭9, ♯9 and ♯11 — but this one keeps the natural 13 where altered gives you a ♭13. That difference is the whole reason to know both.',
       },
       {
+        kind: 'keyboard',
+        label: 'Half-whole diminished from G',
+        notes: ['G', 'A♭', 'B♭', 'B', 'C♯', 'D', 'E', 'F', 'G'],
+        note: 'Look at the gaps rather than the names: one key, two keys, one, two, all the way up. The shape repeats every three keys, which is why there are only three of these scales.',
+      },
+      {
         kind: 'callout',
         title: 'Three shapes cover twelve roots',
         text: 'Because the pattern repeats every minor third, there are only three distinct diminished scales in existence. Work that out once at the keyboard and you have permanently reduced twelve fingerings to three.',
@@ -305,6 +367,12 @@ export const TOPICS: Topic[] = [
           { symbol: 'That added note', means: 'the "blue note" — it is passed through, not landed on', gives: 'G♭' },
         ],
         note: 'The ♭5 is a note you slide off, not one you rest on. Nothing in the spelling tells you that, which is why this scale has to be learned by ear from records rather than from a page.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'The C blues scale',
+        notes: ['C', 'E♭', 'F', 'G♭', 'G', 'B♭', 'C'],
+        note: 'Six notes. The G♭ and G sit next to each other — that pair is the sound, and you pass through the G♭ rather than landing on it.',
       },
     ],
     related: ['bebop-scales', 'upper-structure-triads'],
@@ -336,6 +404,22 @@ export const TOPICS: Topic[] = [
         note: 'The guide tone goes F, F, E across the whole progression — it holds, then drops one key. The hand shapes span 3, 10 and 4 semitones, so nothing stretches. This is the version to learn first, and it is still what you will play behind a busy melody years from now.',
       },
       {
+        kind: 'keyboard',
+        label: 'Two-note shell — Dm7',
+        notes: ['D', 'F'],
+      },
+      {
+        kind: 'keyboard',
+        label: 'Two-note shell — G7. The F has not moved.',
+        notes: ['G', 'F'],
+      },
+      {
+        kind: 'keyboard',
+        label: 'Two-note shell — Cmaj7. The F dropped one key to E.',
+        notes: ['C', 'E'],
+        note: 'Three chords, and the upper note went F, F, E. Play the three diagrams in order and watch how little your hand does.',
+      },
+      {
         kind: 'prose',
         text: 'When you want both guide tones, add the other one on top. Now the shorthand matters, because three notes can be stacked in two orders — and the numbers describe that order read bottom to top, like the notes sit on the keyboard. 1-3-7 means root at the bottom, third above it, seventh on top. 1-7-3 is the same three notes with the top two swapped.',
       },
@@ -353,6 +437,22 @@ export const TOPICS: Topic[] = [
           { symbol: 'Cmaj7 as 1-3-7', means: 'C, then the 3rd above it, then the natural 7 on top — a major 7th', gives: 'C – E – B' },
         ],
         note: 'Every shape spans a 7th or less, and every one is the same fingering: 5-3-1. One shape, moved around. That is the entire left hand for a ii–V–I in C.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'Dm7 as 1-3-7',
+        notes: ['D', 'F', 'C'],
+      },
+      {
+        kind: 'keyboard',
+        label: 'G7 as 1-3-7',
+        notes: ['G', 'B', 'F'],
+      },
+      {
+        kind: 'keyboard',
+        label: 'Cmaj7 as 1-3-7',
+        notes: ['C', 'E', 'B'],
+        note: 'The red key is the root each time. Notice the shape barely changes — that is why the fingering is 5-3-1 on all three.',
       },
       {
         kind: 'prose',
@@ -382,6 +482,17 @@ export const TOPICS: Topic[] = [
           { symbol: '1-7-3', means: 'D on the bottom. Up a minor 7th to C, the ♭7. Up a fourth to F, the ♭3. Fifteen semitones — a 10th.', gives: 'D – C – F' },
         ],
         note: 'Identical notes, identical chord, one is half again as wide as the other. Both are correct voicings of Dm7; only one of them is comfortable.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'Dm7 as 1-3-7 — a minor 7th under the hand',
+        notes: ['D', 'F', 'C'],
+      },
+      {
+        kind: 'keyboard',
+        label: 'Dm7 as 1-7-3 — the same notes, spread to a 10th',
+        notes: ['D', 'C', 'F'],
+        note: 'Same three keys are lit in both. The difference is only how far apart they are, and the second one is a genuine stretch.',
       },
       {
         kind: 'prose',
@@ -420,6 +531,17 @@ export const TOPICS: Topic[] = [
           { symbol: 'Form B', means: 'start on the 7th and stack: ♭7, 9, 3, 5', gives: 'C – E – F – A' },
         ],
         note: 'Identical notes, different bottom note. Form B is simply form A with the top two moved underneath, which is why they fit together so well when you alternate them.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'Dm9, form A — from the 3rd',
+        notes: ['F', 'A', 'C', 'E'],
+      },
+      {
+        kind: 'keyboard',
+        label: 'Dm9, form B — from the 7th',
+        notes: ['C', 'E', 'F', 'A'],
+        note: 'No D in either — the bassist has that. The same four letters, sitting in a different octave arrangement.',
       },
       {
         kind: 'table',
@@ -476,6 +598,23 @@ export const TOPICS: Topic[] = [
           { symbol: 'A major', means: 'A C♯ E — that is 9, ♯11, 13', gives: 'lydian dominant, no alterations' },
         ],
         note: 'Every one of those is a triad you can already play without thinking. The work is not in the triad — it is in knowing which one to reach for, which is why they are drilled as four grabs in one key before moving around the cycle.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'The left hand alone — the 3rd and ♭7 of G7',
+        notes: ['B', 'F'],
+        note: 'Two notes. This never changes while you try the four triads above it.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'Add an A♭ major triad on top — the fully altered sound',
+        notes: ['B', 'F', 'A♭', 'C', 'E♭'],
+      },
+      {
+        kind: 'keyboard',
+        label: 'Or an A major triad — lydian dominant, no alterations',
+        notes: ['B', 'F', 'A', 'C♯', 'E'],
+        note: 'Same two notes underneath, an ordinary major triad on top, and the entire character of the chord changes.',
       },
       {
         kind: 'prose',
@@ -537,6 +676,18 @@ export const TOPICS: Topic[] = [
           { symbol: 'Cm6/9 as 1-♭3-6', means: 'root, the ♭3 above it, the natural 6th on top', gives: 'C – E♭ – A' },
         ],
         note: 'Read bottom to top, as always. The shell of the half-diminished ii is identical to the shell of a plain Dm7 — the ♭5 lives in the right hand, so your left hand barely has to change between the major and minor versions of the progression.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'Dm7♭5 — the full chord',
+        notes: ['D', 'F', 'A♭', 'C'],
+        note: 'The A♭ is the flattened 5th. Leave it out and what remains — D, F, C — is the same shell you already play on a plain Dm7.',
+      },
+      {
+        kind: 'keyboard',
+        label: 'Cm6/9 — the minor tonic',
+        notes: ['C', 'E♭', 'A', 'D'],
+        note: 'An A natural, not a B♭. That natural 6th is what makes it sound finished instead of hanging.',
       },
       {
         kind: 'list',
