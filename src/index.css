@@ -1203,14 +1203,19 @@ td.lead-cell {
   position: sticky;
   top: 79px;
   z-index: 9;
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) auto auto;
-  align-items: center;
-  gap: 24px;
   padding: 12px 32px;
   background: var(--moss-soft);
   border-bottom: 1px solid var(--moss);
   box-shadow: 0 6px 16px -14px rgba(0, 0, 0, 0.5);
+  max-height: calc(100vh - 79px);
+  overflow-y: auto;
+}
+
+.bar-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) auto auto;
+  align-items: center;
+  gap: 24px;
 }
 
 .session-bar.is-paused {
@@ -1220,7 +1225,10 @@ td.lead-cell {
 
 .session-bar.is-done {
   background: var(--moss-soft);
+  display: grid;
   grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
 }
 
 .bar-block {
@@ -1387,13 +1395,16 @@ td.lead-cell {
 
 @media (max-width: 980px) {
   .session-bar {
+    padding: 12px 24px;
+  }
+
+  .bar-head {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       'block clock'
       'progress progress'
       'controls controls';
     gap: 10px 16px;
-    padding: 12px 24px;
   }
 
   .session-bar .bar-block {
@@ -1416,4 +1427,136 @@ td.lead-cell {
     grid-template-columns: 1fr auto;
     grid-template-areas: 'block controls';
   }
+}
+
+/* ---- what to do in the block you're on ---- */
+
+.bar-detail {
+  margin-top: 10px;
+  border-top: 1px solid var(--rule);
+  animation: bar-arrive 0.5s ease-out;
+}
+
+.bar-detail-toggle {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 7px 0 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.bar-detail-context {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar-detail-caret {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--felt);
+  flex-shrink: 0;
+}
+
+.bar-detail-body {
+  padding: 8px 0 4px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  gap: 8px 30px;
+  align-items: start;
+}
+
+.bar-purpose {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  border-left: 2px solid var(--rule-2);
+  padding-left: 12px;
+}
+
+.bar-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bar-items li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.bar-items li::before {
+  content: '–';
+  position: absolute;
+  left: 3px;
+  font-weight: 700;
+  color: var(--moss);
+}
+
+.session-bar.is-paused .bar-items li::before {
+  color: var(--brass);
+}
+
+.bar-target {
+  grid-column: 1 / -1;
+  font-size: 12.5px;
+  color: var(--muted);
+  padding-top: 4px;
+  border-top: 1px solid var(--rule);
+}
+
+.bar-target-label {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.bar-target a {
+  color: var(--felt);
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+@media (max-width: 980px) {
+  .bar-detail-body {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-detail {
+    animation: none;
+  }
+}
+
+.block-purpose {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  border-left: 2px solid var(--rule-2);
+  padding-left: 12px;
+  margin: 6px 0 11px;
+  max-width: 62ch;
 }

@@ -77,6 +77,17 @@ links to the wiki topics it builds on.
 To change the content, edit `UNITS` or `VARIANTS` in `src/data/curriculum.ts`
 — the hundred are generated from them, so the sequence stays consistent.
 
+**One rule when editing units:** unit material names *what* to play, never
+*how*. Hands together or apart, with or without a metronome, at what tempo —
+all of that belongs to the variant, which changes day to day. A unit that says
+"hands together" will contradict the Introduce step, which says hands apart.
+Where a unit has a standard to hit, put it in `target`; it is shown as context,
+not as a daily instruction.
+
+Each block also carries a `purpose` from `BLOCK_PURPOSE` — what that block is
+for, stable across all hundred sessions, since a block's role in the hour never
+changes even as the material inside it does.
+
 ## Adding a wiki topic
 
 Append a `Topic` to `TOPICS` in `src/data/theory.ts`. The index, sidebar and
@@ -130,9 +141,11 @@ It lives in a provider above the router, so it keeps running when you click
 into a wiki topic mid-session. A bar sticks under the masthead for the whole
 session, on every page, carrying the controls with it — pausing never means
 navigating back to the session. It shows which block you're on and of how many,
-its title, what comes next, elapsed against the block's allotted minutes, and
-time left in the session; it re-announces itself at each hand-off. The length
-picker locks while a session is being timed.
+what comes next, elapsed against the block's allotted minutes, time left in the
+session, and the block's full instructions: what it is for, what to play, and
+what the unit is aiming at. The detail panel remounts open at each hand-off, so
+new work is never hidden behind a collapsed toggle. The length picker locks
+while a session is being timed.
 
 `lib/notify.ts` handles both channels. Browsers won't start an AudioContext or
 grant notification permission from a background tick, so `prime()` is called

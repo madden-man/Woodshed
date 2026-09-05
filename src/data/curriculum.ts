@@ -20,6 +20,12 @@ export interface Unit {
   name: string
   level: string
   goal: string
+  /**
+   * The standard this unit is aiming at. Context, not a daily instruction —
+   * how to play a thing on any given day is the variant's business, so unit
+   * material must never bake in hands-together, a tempo, or a metronome.
+   */
+  target: string
   /** Wiki slugs this unit builds on. */
   wiki: string[]
   scales: (key: KeyName) => string[]
@@ -34,10 +40,11 @@ export const UNITS: Unit[] = [
     name: 'Ground floor',
     level: '4.0',
     goal: 'Every major scale clean and even, and a shell voicing under every chord.',
+    target: 'Every major scale even at ♩=100, hands together.',
     wiki: ['cycle-of-fourths', 'major-scale-modes', 'shell-voicings', 'tempo-targets'],
     scales: (k) => [
-      `${k} major, four octaves, hands together, eighth notes`,
-      `${KEYS[k].I} arpeggio, all four inversions, four octaves`,
+      `${k} major — four octaves up and back down, eighth notes, even tone throughout`,
+      `${KEYS[k].I} arpeggio — root position, then 1st, 2nd and 3rd inversion, four octaves each`,
     ],
     voicings: (k) => [
       `Shells on the major ii–V–I in ${k}: 1-7-3 on ${KEYS[k].ii}, 1-3-7 on ${KEYS[k].V}, 1-7-3 on ${KEYS[k].I}`,
@@ -53,9 +60,10 @@ export const UNITS: Unit[] = [
     name: 'The parent scale',
     level: '4.2',
     goal: 'Modes heard as degrees of one scale, and the first scales in 3rds.',
+    target: 'The major scale in 3rds at ♩=88, and modes without stopping to work out the parent.',
     wiki: ['major-scale-modes', 'shell-voicings'],
     scales: (k) => [
-      `${k} major in 3rds, up and down — the level-5 requirement`,
+      `${k} major in 3rds — up a third, down a third, four octaves`,
       `Dorian on the 2nd degree, Lydian on the 4th, Mixolydian on the 5th, two octaves each`,
     ],
     voicings: (k) => [
@@ -70,6 +78,7 @@ export const UNITS: Unit[] = [
     name: 'Rootless',
     level: '4.4',
     goal: 'Both Bill Evans forms, voice-led so the top note barely moves.',
+    target: 'Rootless A and B on any ii–V–I, top voice moving by step or not at all.',
     wiki: ['rootless-voicings', 'shell-voicings'],
     scales: (k) => [
       `${k} major and Dorian in 3rds, four octaves`,
@@ -87,6 +96,7 @@ export const UNITS: Unit[] = [
     name: 'The dominant',
     level: '4.6',
     goal: 'Mixolydian, the bebop scale, and chord tones landing on downbeats by themselves.',
+    target: 'Dominant bebop at ♩=100, chord tones landing on the downbeats by themselves.',
     wiki: ['bebop-scales', 'major-scale-modes', 'hand-independence'],
     scales: (k) => [
       `Mixolydian on ${KEYS[k].V}, four octaves`,
@@ -105,6 +115,7 @@ export const UNITS: Unit[] = [
     name: 'Minor territory',
     level: '4.8',
     goal: 'The three minors told apart by ear, and the minor ii–V–i in the hands.',
+    target: 'The minor ii–V–i in all twelve keys, from memory.',
     wiki: ['melodic-minor-family', 'minor-two-five-one'],
     scales: (k) => [
       `${k} natural, harmonic and melodic minor, same tonic, no pause between — hear which note moved`,
@@ -115,13 +126,14 @@ export const UNITS: Unit[] = [
       'Shells first, then rootless. Voice the tonic as m6/9, not m7 — the natural 6 is what makes it resolve.',
     ],
     independence: ['Walking bass under a minor ii–V–i, approaching every root chromatically'],
-    tune: () => ['Beautiful Love — head and every minor ii–V–i in it, hands together'],
+    tune: () => ['Beautiful Love — the head, and every minor ii–V–i inside it'],
   },
   {
     id: 6,
     name: 'Altered',
     level: '5.0',
     goal: 'One scale that carries every alteration, on every dominant, without thinking.',
+    target: 'The altered scale on any dominant at ♩=100, without deriving it first.',
     wiki: ['melodic-minor-family', 'minor-two-five-one'],
     scales: (k) => [
       `Altered scale on ${KEYS[k].V} — melodic minor from a half step above the root`,
@@ -139,6 +151,7 @@ export const UNITS: Unit[] = [
     name: 'Upper structures',
     level: '5.2',
     goal: 'Four triads over any dominant, grabbed as shapes rather than worked out.',
+    target: 'Four upper structures over any dominant, grabbed as shapes.',
     wiki: ['upper-structure-triads', 'diminished-and-blues'],
     scales: (k) => [
       `Half-whole diminished from ${KEYS[k].V} — ♭9, ♯9 and ♯11 at once`,
@@ -159,6 +172,7 @@ export const UNITS: Unit[] = [
     name: 'Blues & symmetry',
     level: '5.4',
     goal: 'The idiom that has no theory behind it, next to the scales that are nothing but.',
+    target: 'A twelve-bar blues you would actually play for someone.',
     wiki: ['diminished-and-blues', 'bebop-scales'],
     scales: (k) => [
       `${k} blues scale and minor pentatonic, four octaves, then in 3rds`,
@@ -176,9 +190,10 @@ export const UNITS: Unit[] = [
     name: 'Solo piano',
     level: '5.6',
     goal: 'Melody, harmony and bass under two hands at the same time.',
+    target: 'One tune as a complete solo arrangement, start to finish.',
     wiki: ['rootless-voicings', 'upper-structure-triads', 'hand-independence'],
     scales: (k) => [
-      `${k} in 3rds at ♩=112, four octaves`,
+      `${k} in 3rds, four octaves`,
       'Every arpeggio quality on the tonic — maj7, m7, dom7, m7♭5, dim7 — all inversions',
     ],
     voicings: () => [
@@ -193,9 +208,10 @@ export const UNITS: Unit[] = [
     name: 'Fluency',
     level: '5.8',
     goal: 'Everything, in every key, at tempo, without a chart in front of you.',
+    target: 'All twelve keys at ♩=120, in 3rds, no chart.',
     wiki: ['cycle-of-fourths', 'tempo-targets', 'major-scale-modes', 'melodic-minor-family'],
     scales: (k) => [
-      `${k} at ♩=120 — major, Dorian, dominant bebop, altered, blues`,
+      `${k} — major, Dorian, dominant bebop, altered, blues`,
       'Each of them in 3rds before you move on. This is the level-6 bar.',
     ],
     voicings: (k) => [
@@ -300,11 +316,30 @@ export const VARIANTS: Variant[] = [
   },
 ]
 
+/**
+ * What each block is for. The same every session, because a block's role in
+ * the hour never changes — only the material inside it does.
+ */
+export const BLOCK_PURPOSE: Record<string, string> = {
+  warmup:
+    'Loosen the hands and get the ear switched on. Nothing here is timed or measured — if any of it feels like effort, go slower.',
+  scales:
+    'The raw vocabulary. Evenness before speed: every note the same weight, in both hands. A metronome only joins at step 4 of the unit — before that, slow enough to be perfect.',
+  voicings:
+    'Turning harmony into shapes your hands find without you working them out. Left hand first, every time; it carries the chord.',
+  independence:
+    'Teaching each hand to hold a part the other is not playing. Separately until each is automatic, then together at half tempo. This is the slowest block and it is meant to be.',
+  tune:
+    'Where the day’s material becomes music. The only block that has to sound like anything — and the one to protect if you run out of time.',
+}
+
 export interface RegimenBlock {
   id: string
   title: string
   /** Share of the session length; the five weights sum to 1. */
   weight: number
+  /** Why this block exists — stable across all hundred sessions. */
+  purpose: string
   items: string[]
 }
 
@@ -333,7 +368,7 @@ export function getRegimen(n: number): Regimen {
   const key = CYCLE_OF_FOURTHS[index % CYCLE_OF_FOURTHS.length]
   const previous = UNITS[Math.max(0, unit.id - 2)]
 
-  const blocks: RegimenBlock[] = [
+  const blocks: Omit<RegimenBlock, 'purpose'>[] = [
     {
       id: 'warmup',
       title: 'Warm-up',
@@ -381,7 +416,7 @@ export function getRegimen(n: number): Regimen {
     key,
     title: `${unit.name} · ${variant.name}`,
     level: levelFor(index),
-    blocks,
+    blocks: blocks.map((b) => ({ ...b, purpose: BLOCK_PURPOSE[b.id] ?? '' })),
   }
 }
 

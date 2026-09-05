@@ -61,8 +61,8 @@ export default function RegimenPage() {
           </div>
         </div>
         <div className="strip-goal">
-          <div className="eyebrow">Unit goal</div>
-          <div>{regimen.unit.goal}</div>
+          <div className="eyebrow">Unit is aiming at</div>
+          <div>{regimen.unit.target}</div>
         </div>
       </div>
 
@@ -104,6 +104,7 @@ export default function RegimenPage() {
               </div>
               <div className="block-body">
                 <h2>{block.title}</h2>
+                {block.purpose && <p className="block-purpose">{block.purpose}</p>}
                 <ul className="bullets">
                   {block.items.map((item, j) => (
                     <li key={j}>{item}</li>
