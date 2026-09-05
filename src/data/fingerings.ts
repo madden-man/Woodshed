@@ -140,11 +140,11 @@ export const SCALE_GUIDANCE: Record<number, Guidance[]> = {
 
 /** How to finger each unit's voicing material. */
 export const VOICING_GUIDANCE: Record<number, Guidance[]> = {
-  1: [{ label: 'Shells', text: 'Left hand 5-2-1 on the 1-7-3 shape, 5-3-1 on the 1-3-7 shape. The 1-7-3 is the wider of the two, so the middle finger moves rather than the outer ones.' }],
-  2: [{ label: 'Shells + extensions', text: 'Left hand as unit 1. Right hand takes the 9 and 13 with 1 and 5, or 2 and 5 if the reach is awkward — keep the wrist level rather than stretching from the knuckles.' }],
+  1: [{ label: 'Shells', text: 'Left hand 5-3-1 on every 1-3-7 shape, whatever the chord quality — that is the point of stacking them this way. Two-note shells are 5-3 for a root-plus-third and 5-1 for a root-plus-seventh.' }],
+  2: [{ label: 'Shells + extensions', text: 'Left hand 5-3-1 as unit 1. Right hand takes the 9 and 13 with 1 and 5, or 2 and 5 if the reach is awkward — keep the wrist level rather than stretching from the knuckles.' }],
   3: [{ label: 'Rootless A and B', text: 'Four notes in one hand: 1-2-3-5 going up. Form B often needs 1-2-4-5 instead, because the gap sits between the second and third notes rather than the third and fourth.' }],
   4: [{ label: 'Rootless B', text: '1-2-4-5 for the four notes. The walking bass underneath is fingered as a line, not a chord — 2 and 3 for chromatic approaches so the thumb stays free for the target root.' }],
-  5: [{ label: 'Minor ii–V–i', text: 'Same shapes as the major ii–V–I; the m7♭5 is narrower, so 5-2-1 in the left hand. Voice the m6/9 with 1-2-3-5 in the right.' }],
+  5: [{ label: 'Minor ii–V–i', text: 'Identical to the major ii–V–I — the m7♭5 shell is the same three notes as a plain m7, so it stays 5-3-1 and your left hand does not learn anything new. Voice the m6/9 with 1-2-3-5 in the right hand.' }],
   6: [{ label: 'Altered dominants', text: 'Left hand holds 3 and 7 with 5 and 1. The alterations go in the right hand with 1-2-3-5 — never try to take the ♭9 and ♭13 in the same hand as the shell.' }],
   7: [{ label: 'Upper structures', text: 'Right hand plays a plain major triad: 1-3-5 root position, 1-2-5 for first inversion, 1-3-5 for second. Left hand keeps the shell on 5 and 1. The point is that all four triads are the same shape in a different place.' }],
   8: [{ label: 'Blues comping', text: 'Shells in the left hand as before. Tritone subs in the last four bars keep the same 5-3-1 shape a tritone away — the fingers do not change, only where the hand sits.' }],

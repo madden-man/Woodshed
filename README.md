@@ -134,6 +134,13 @@ is unreadable until someone spells it out, so:
 Both are enforced by tests, including a minimum length on a worked row's
 explanation — it caught three rows where I'd written "the tritone" and moved on.
 
+A third rule applies to any voicing the wiki teaches: **it has to fit one hand.**
+A test parses the note names back out and rejects a taught shape spanning more
+than an octave. That is why shell voicings are stacked 1-3-7 rather than the
+1-7-3 some books use — in a ii–V–I, 1-7-3 puts all three shapes at a 10th or
+wider, where 1-3-7 keeps them inside a 7th and uses one fingering (5-3-1) for
+every chord quality.
+
 ## Tests
 
 `npm test` (vitest, `src/**/*.test.ts`). Four files, no DOM and no mocks —

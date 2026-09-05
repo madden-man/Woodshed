@@ -66,8 +66,8 @@ export const UNITS: Unit[] = [
       `${KEYS[k].I} arpeggio — root position, then 1st, 2nd and 3rd inversion, four octaves each`,
     ],
     voicings: (k) => [
-      `Shells on the major ii–V–I in ${k}: 1-7-3 on ${KEYS[k].ii}, 1-3-7 on ${KEYS[k].V}, 1-7-3 on ${KEYS[k].I}`,
-      'Watch the guide tones — the 7th of the ii falls a half step to the 3rd of the V. If your hand leaps, the shapes are in the wrong order.',
+      `Two-note shells first through the ii–V–I in ${k}: root plus the ♭3 on ${KEYS[k].ii}, root plus the ♭7 on ${KEYS[k].V}, root plus the 3rd on ${KEYS[k].I}. The guide tone holds, then drops a half step.`,
+      `Then three-note shells, all 1-3-7: root, 3rd, 7th, bottom to top. Nothing wider than a 7th and the same 5-3-1 fingering on every chord.`,
     ],
     independence: (k) => ({
       name: 'Charleston ostinato',
@@ -91,8 +91,8 @@ export const UNITS: Unit[] = [
       `Dorian on the 2nd degree, Lydian on the 4th, Mixolydian on the 5th, two octaves each`,
     ],
     voicings: (k) => [
-      `Shells in ${k} with the 9 and the 13 added in the right hand`,
-      'Four notes, one rule, and it already sounds professional. Keep the left hand quiet.',
+      `1-3-7 shells in ${k} with the 9 and the 13 added in the right hand`,
+      'Five notes, one rule, and it already sounds professional. Keep the left hand quiet and let the right hand carry the colour.',
     ],
     independence: (k) => ({
       name: 'Displaced Charleston',

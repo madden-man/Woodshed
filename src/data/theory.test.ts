@@ -226,6 +226,35 @@ describe('shell voicings are spelled correctly', () => {
     for (const set of sets) expect(set[0]).toBe(PITCH.D)
   })
 
+  /**
+   * A shape wider than an octave means stretching, which is the wrong default
+   * for a left hand that also has to move. 1-7-3 puts every chord in this
+   * progression at a 10th, so the page teaches 1-3-7 first.
+   */
+  it('keeps every taught shape within an octave', () => {
+    if (spelled?.kind !== 'worked') throw new Error('missing block')
+    for (const row of spelled.rows) {
+      const notes = row.gives.split('–').map((n) => PITCH[n.trim()])
+      let previous = notes[0]
+      let top = notes[0]
+      for (const pc of notes.slice(1)) {
+        let pitch = pc
+        while (pitch <= previous) pitch += 12
+        previous = pitch
+        top = pitch
+      }
+      expect(top - notes[0], `${row.symbol} spans too far for one hand`).toBeLessThanOrEqual(12)
+    }
+  })
+
+  it('leads with the two-note shell before the three-note one', () => {
+    const labels = topic.blocks.filter((b) => b.kind === 'worked').map((b) => (b.kind === 'worked' ? b.label : ''))
+    const two = labels.findIndex((l) => /two-note/i.test(l))
+    const three = labels.findIndex((l) => l === 'The ii–V–I in C, spelled out')
+    expect(two).toBeGreaterThanOrEqual(0)
+    expect(two).toBeLessThan(three)
+  })
+
   it('explains that the numbers are read bottom to top', () => {
     const text = topic.blocks
       .map((b) => (b.kind === 'prose' ? b.text : b.kind === 'callout' ? `${b.title} ${b.text}` : ''))
