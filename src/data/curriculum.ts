@@ -30,8 +30,27 @@ export interface Unit {
   wiki: string[]
   scales: (key: KeyName) => string[]
   voicings: (key: KeyName) => string[]
-  independence: string[]
+  independence: (key: KeyName) => DrillSpec
   tune: (key: KeyName) => string[]
+}
+
+/**
+ * An independence drill, specified properly. A rhythm on its own is not a
+ * drill — you have to know what each hand is actually playing, over what, and
+ * what going wrong looks like.
+ */
+export interface DrillSpec {
+  name: string
+  /** The notes the left hand plays, not just when it plays them. */
+  leftHand: string
+  /** The notes the right hand plays. */
+  rightHand: string
+  /** How the two line up in time. */
+  rhythm: string
+  /** The harmony or form it happens over. */
+  over: string
+  /** The failure this drill is usually failing at, so you can hear it. */
+  watchFor: string
 }
 
 export const UNITS: Unit[] = [
@@ -50,9 +69,14 @@ export const UNITS: Unit[] = [
       `Shells on the major ii–V–I in ${k}: 1-7-3 on ${KEYS[k].ii}, 1-3-7 on ${KEYS[k].V}, 1-7-3 on ${KEYS[k].I}`,
       'Watch the guide tones — the 7th of the ii falls a half step to the 3rd of the V. If your hand leaps, the shapes are in the wrong order.',
     ],
-    independence: [
-      'Charleston ostinato — left hand on beat 1 and the and-of-2, right hand running steady eighths',
-    ],
+    independence: (k) => ({
+      name: 'Charleston ostinato',
+      leftHand: `The shell of the chord, struck as a block — for ${KEYS[k].I} that is ${k}, the 7th above it, the 3rd above that. One shape, no movement.`,
+      rightHand: `${k} major in unbroken eighth notes, four octaves, up and back down. It never stops or bumps.`,
+      rhythm: 'Left hand plays beat 1 and the "and" of beat 2. Nothing on 3 or 4 — the silence is the drill.',
+      over: `Eight bars on ${KEYS[k].I}, then the ii–V–I in ${k}, two bars a chord.`,
+      watchFor: 'The right hand flinching where the left hand strikes. If the eighths bump at all, halve the tempo.',
+    }),
     tune: () => ['Autumn Leaves — melody alone, in time, from memory. No chart.'],
   },
   {
@@ -70,7 +94,14 @@ export const UNITS: Unit[] = [
       `Shells in ${k} with the 9 and the 13 added in the right hand`,
       'Four notes, one rule, and it already sounds professional. Keep the left hand quiet.',
     ],
-    independence: ['Charleston ostinato displaced by an eighth — all four positions'],
+    independence: (k) => ({
+      name: 'Displaced Charleston',
+      leftHand: 'The same shells, but the two-hit pattern starts one eighth later each pass: beat 1, then the "and" of 1, then beat 2, then the "and" of 2.',
+      rightHand: `${k} major in 3rds, four octaves, steady eighths throughout.`,
+      rhythm: 'Four positions, eight bars each, no stopping in between. Count the position out loud on its first bar.',
+      over: `The ii–V–I in ${k}, two bars a chord, round and round.`,
+      watchFor: 'Losing track of which displacement you are in and drifting back to the easy one on beat 1.',
+    }),
     tune: () => ['Autumn Leaves — shells in the left hand, melody in the right, slow enough that the bridge never stumbles'],
   },
   {
@@ -88,7 +119,14 @@ export const UNITS: Unit[] = [
       `Rootless form A through the ii–V–I in ${k}, then the whole thing again in form B`,
       'Watch only the top note. Step or stay put across all three chords, or you picked the wrong form.',
     ],
-    independence: ['Left hand roots on beats 1 and 3 under right-hand rootless voicings'],
+    independence: (k) => ({
+      name: 'Roots under rootless',
+      leftHand: `Single notes, roots only — ${KEYS[k].ii[0]}, then ${KEYS[k].V[0]}, then ${k}. No shell, no fifth, nothing else.`,
+      rightHand: 'The rootless voicings themselves, form A: the 3rd, 5th, 7th and 9th of each chord as one four-note block.',
+      rhythm: 'Left hand on beats 1 and 3. Right hand on the "and" of 2 and the "and" of 4 — the hands never sound together.',
+      over: `ii–V–I in ${k}, two bars a chord.`,
+      watchFor: 'The hands creeping into unison. If they ever land on the same eighth, the drill has stopped doing anything.',
+    }),
     tune: () => ['Blue Bossa — melody from memory, then comping in rootless A behind it'],
   },
   {
@@ -107,7 +145,14 @@ export const UNITS: Unit[] = [
       `Rootless B with the 13 on ${KEYS[k].V}`,
       `The ii–V–I in ${k}, then straight into ${nextKey(k)} without stopping`,
     ],
-    independence: ['Walking bass in quarter notes under right-hand comping — ♩=60, and refuse to go faster'],
+    independence: (k) => ({
+      name: 'Walking bass and comping',
+      leftHand: `Quarter notes: the root on beat 1, two chord or scale tones on 2 and 3, then a note a half step above or below the next chord's root on beat 4. Through ${KEYS[k].ii} to ${KEYS[k].V}, that is root, 3rd, 5th, then a half step into ${KEYS[k].V[0]}.`,
+      rightHand: `Rootless form B on each chord — one stab per bar to begin with, nothing more.`,
+      rhythm: 'Left hand four to the bar, dead even. Right hand only on the "and" of 2.',
+      over: `ii–V–I in ${k}, one bar a chord. ♩=60 the first time you meet this; after that the day’s step sets the tempo.`,
+      watchFor: 'The bass line hesitating whenever the right hand plays. The left hand must not know the right hand exists.',
+    }),
     tune: () => ['Take the A Train — head, then two choruses of comping recorded on your phone, then solo over it'],
   },
   {
@@ -125,7 +170,14 @@ export const UNITS: Unit[] = [
       `Minor ii–V–i in ${k}: ${KEYS[k].halfDim} → ${KEYS[k].altered} → ${KEYS[k].minorI}`,
       'Shells first, then rootless. Voice the tonic as m6/9, not m7 — the natural 6 is what makes it resolve.',
     ],
-    independence: ['Walking bass under a minor ii–V–i, approaching every root chromatically'],
+    independence: (k) => ({
+      name: 'Walking the minor ii–V–i',
+      leftHand: `The same quarter-note walk through ${KEYS[k].halfDim} → ${KEYS[k].altered} → ${KEYS[k].minorI}, approaching every root by a half step from above or below on beat 4.`,
+      rightHand: 'Shells for the first chorus, then the rootless minor voicings — the m7♭5, the altered dominant, the m6/9.',
+      rhythm: 'Left hand four to the bar. Right hand on the "and" of 2 and the "and" of 4.',
+      over: `Minor ii–V–i in ${k}, two bars a chord.`,
+      watchFor: 'The left hand reaching for the ♭5 or the alterations. Its only job is the line — colour lives in the right hand.',
+    }),
     tune: () => ['Beautiful Love — the head, and every minor ii–V–i inside it'],
   },
   {
@@ -143,7 +195,14 @@ export const UNITS: Unit[] = [
       `${KEYS[k].altered} voiced with the ♭9 and ♭13 on top`,
       `Then the tritone sub in place of ${KEYS[k].V} — same guide tones, new root`,
     ],
-    independence: ['Walking bass at ♩=80, right hand comping on the offbeats only'],
+    independence: (k) => ({
+      name: 'Offbeat comping',
+      leftHand: `The walking line through the ii–V–I in ${k}, now with a chromatic passing tone on beat 4 of every bar.`,
+      rightHand: `${KEYS[k].altered} voiced with the ♭9 and ♭13 on top; the ii and the I as rootless form A.`,
+      rhythm: 'Right hand plays on offbeats only — the "and" of 1, 2, 3 or 4, never a downbeat, for a full chorus.',
+      over: `ii–V–I in ${k}, one bar a chord. ♩=80 once it is comfortable, but the day’s step has the last word.`,
+      watchFor: 'Sneaking onto a downbeat exactly where the chord changes. That is the habit this drill exists to remove.',
+    }),
     tune: () => ['Solar — improvise using nothing but the altered scale over every dominant'],
   },
   {
@@ -164,7 +223,14 @@ export const UNITS: Unit[] = [
         `${flatII} gives ♭9/11/♭13 · ${VI} gives 13/♭9/3 · ${flatVI} gives ♭13/root/♯9 · ${II} gives 9/♯11/13`,
       ]
     },
-    independence: ['3-over-2 — tap it first, then left hand quarters against right hand triplets, then swap hands'],
+    independence: (k) => ({
+      name: 'Three against two',
+      leftHand: `Two evenly spaced notes per bar: the root and the fifth of ${KEYS[k].V}, on beats 1 and 3.`,
+      rightHand: `Three evenly spaced notes across the same span — the upper structure triad, one note each. Over ${KEYS[k].V} that is ${KEYS[k].upperStructures[0]}.`,
+      rhythm: 'Three against two. Say "cold cup of tea": only "cold" is both hands together, and after that they alternate.',
+      over: `Eight bars on ${KEYS[k].V}, the V of ${k}, then swap which hand carries the three.`,
+      watchFor: 'Playing it as a shuffle. If the three notes are not perfectly even you are feeling it in 6/8, not as a polyrhythm.',
+    }),
     tune: () => ['There Will Never Be Another You — an upper structure on every dominant in the form'],
   },
   {
@@ -182,7 +248,14 @@ export const UNITS: Unit[] = [
       `Blues in ${k} — the quick IV in bar 2, the turnaround in 11 and 12`,
       'Tritone subs through the last four bars',
     ],
-    independence: ['4-over-3 — tapped first, then played. Then displace the melody by a half beat for a full chorus.'],
+    independence: (k) => ({
+      name: 'Four against three',
+      leftHand: `Three even notes per bar — the root, ♭7 and ♭3 of the chord under you.`,
+      rightHand: `Four even notes across the same span, taken from the ${k} blues scale.`,
+      rhythm: 'Four against three: "pass the god-damn butter". Only the first syllable is both hands. Tap it on the fallboard before you play it.',
+      over: `A twelve-bar blues in ${k}, one chord a bar.`,
+      watchFor: 'The two settling into a shuffle. The composite has to sound even before it goes anywhere near the keys.',
+    }),
     tune: (k) => [`Blues in ${k} — twelve choruses, one idea developed across all of them`],
   },
   {
@@ -200,7 +273,14 @@ export const UNITS: Unit[] = [
       'Block chords — harmonize the melody four-way close, then drop the second voice from the top',
       'Add the 6th-diminished passing chords underneath',
     ],
-    independence: ['Bach two-part invention No. 1, 8 or 13 — sixteen bars, each hand to memory, then together at half tempo'],
+    independence: () => ({
+      name: 'Bach two-part invention',
+      leftHand: 'The lower voice alone, sixteen bars, memorised before the hands ever meet.',
+      rightHand: 'The upper voice alone, the same sixteen bars, memorised separately.',
+      rhythm: 'As written. No metronome until each hand is memorised, then both together at half tempo.',
+      over: 'Invention No. 1 in C, No. 8 in F, or No. 13 in A minor. Pick one and stay with it for the whole unit.',
+      watchFor: 'One hand going quiet when the other has the harder line. Both parts are melodies; neither is an accompaniment.',
+    }),
     tune: () => ['Someday My Prince Will Come — a full arrangement: intro, head, one chorus, ending'],
   },
   {
@@ -218,7 +298,14 @@ export const UNITS: Unit[] = [
       `The whole ladder in ${k}: shells, rootless A, rootless B, upper structures, block chords`,
       'Same progression, five ways, no pause between them',
     ],
-    independence: ['Walking bass, comping and melody all at once, ♩=100'],
+    independence: () => ({
+      name: 'All three at once',
+      leftHand: 'Walking quarter notes through the tune’s changes, chromatic approach into every new root.',
+      rightHand: 'The melody, with a chord voicing dropped into the gaps between phrases.',
+      rhythm: 'Bass four to the bar, melody as written, voicings only where the melody rests.',
+      over: 'One chorus of your tune. ♩=100 is the unit’s target, not today’s instruction — the day’s step decides.',
+      watchFor: 'The bass collapsing to roots on beat 1 whenever the melody gets busy. Record it — you will not hear it happening.',
+    }),
     tune: () => ['All the Things You Are — solo piano, then the head in two more keys by ear'],
   },
 ]
@@ -341,6 +428,8 @@ export interface RegimenBlock {
   /** Why this block exists — stable across all hundred sessions. */
   purpose: string
   items: string[]
+  /** Present on the independence block: what each hand actually plays. */
+  drill?: DrillSpec
 }
 
 export interface Regimen {
@@ -394,10 +483,11 @@ export function getRegimen(n: number): Regimen {
       id: 'independence',
       title: 'Hand independence',
       weight: 0.18,
+      drill: unit.independence(key),
       items: [
-        ...unit.independence,
+        `${unit.independence(key).name} — see the breakdown below`,
         variant.name === 'Combine'
-          ? `${variant.independence} (unit ${previous.id}: ${previous.independence[0]})`
+          ? `${variant.independence} — unit ${previous.id}'s was ${previous.independence(key).name}`
           : variant.independence,
       ],
     },

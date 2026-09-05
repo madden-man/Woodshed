@@ -91,6 +91,26 @@ Each block also carries a `purpose` from `BLOCK_PURPOSE` — what that block is
 for, stable across all hundred sessions, since a block's role in the hour never
 changes even as the material inside it does.
 
+The independence block additionally carries a `DrillSpec`, because a rhythm on
+its own is not a drill. Each one names what the **left hand** plays, what the
+**right hand** plays, how the two line up, what harmony it happens over, and
+the failure it is usually failing at:
+
+```
+Charleston ostinato
+  LEFT HAND   The shell of the chord, struck as a block — for Cmaj7 that is
+              C, the 7th above it, the 3rd above that. One shape, no movement.
+  RIGHT HAND  C major in unbroken eighth notes, four octaves, up and back down.
+  LINE UP     Beat 1 and the "and" of beat 2. Nothing on 3 or 4 — the silence
+              is the drill.
+  OVER        Eight bars on Cmaj7, then the ii–V–I in C, two bars a chord.
+  WATCH FOR   The right hand flinching where the left hand strikes.
+```
+
+Tests hold both hands to a minimum length, require each to name an actual pitch,
+chord or scale rather than only a rhythm, and check the drill is parameterised
+by key rather than hard-coded to C.
+
 ## Adding a wiki topic
 
 Append a `Topic` to `TOPICS` in `src/data/theory.ts`. The index, sidebar and

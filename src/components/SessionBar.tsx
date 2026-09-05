@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatClock } from '../lib/notify'
-import { getRegimen } from '../data/curriculum'
+import { getRegimen, type DrillSpec } from '../data/curriculum'
 import type { KeyName } from '../data/keys'
 import { useTimer } from '../hooks/timer-context'
 import Fingering from './Fingering'
+import Drill from './Drill'
 
 /**
  * Sticky under the masthead for the whole session, on every page. Carries the
@@ -119,6 +120,7 @@ export default function SessionBar() {
           key={timer.blockIndex}
           purpose={detail.purpose}
           items={detail.items}
+          drill={detail.drill}
           context={`Regimen ${regimen.number} · ${regimen.unit.name} · ${regimen.variant.name} · key of ${regimen.key}`}
           target={regimen.unit.target}
           regimen={regimen.number}
@@ -134,6 +136,7 @@ export default function SessionBar() {
 interface DetailProps {
   purpose: string
   items: string[]
+  drill?: DrillSpec
   context: string
   target: string
   regimen: number
@@ -142,7 +145,7 @@ interface DetailProps {
   scaleKey: KeyName
 }
 
-function BlockDetail({ purpose, items, context, target, regimen, unitId, blockId, scaleKey }: DetailProps) {
+function BlockDetail({ purpose, items, drill, context, target, regimen, unitId, blockId, scaleKey }: DetailProps) {
   // Remounting on each hand-off resets this to open, so new work is never hidden.
   const [open, setOpen] = useState(true)
 
@@ -167,6 +170,7 @@ function BlockDetail({ purpose, items, context, target, regimen, unitId, blockId
                 <li key={i}>{item}</li>
               ))}
             </ul>
+            {drill && <Drill drill={drill} variant="bar" />}
             <Fingering unitId={unitId} blockId={blockId} scaleKey={scaleKey} variant="bar" />
           </div>
           <p className="bar-target">

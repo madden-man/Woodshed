@@ -121,6 +121,89 @@ describe('session length', () => {
   })
 })
 
+describe('independence drills', () => {
+  it('specify one for every session', () => {
+    for (const r of all) {
+      const block = r.blocks.find((b) => b.id === 'independence')!
+      expect(block.drill, `#${r.number}`).toBeDefined()
+    }
+  })
+
+  it('attach a drill to the independence block and nowhere else', () => {
+    for (const r of all) {
+      for (const b of r.blocks) {
+        if (b.id === 'independence') expect(b.drill, `#${r.number}`).toBeDefined()
+        else expect(b.drill, `#${r.number} ${b.id}`).toBeUndefined()
+      }
+    }
+  })
+
+  /**
+   * The bug this guards: a drill that gives the rhythm and leaves you guessing
+   * what to play. Both hands must be told what notes they are on.
+   */
+  it('say what each hand plays, not only when', () => {
+    for (const unit of UNITS) {
+      for (const key of CYCLE_OF_FOURTHS) {
+        const d = unit.independence(key)
+        expect(d.leftHand.length, `unit ${unit.id} LH`).toBeGreaterThan(40)
+        expect(d.rightHand.length, `unit ${unit.id} RH`).toBeGreaterThan(40)
+        expect(d.rhythm.length, `unit ${unit.id} rhythm`).toBeGreaterThan(30)
+        expect(d.over.length, `unit ${unit.id} over`).toBeGreaterThan(15)
+        expect(d.watchFor.length, `unit ${unit.id} watchFor`).toBeGreaterThan(40)
+        expect(d.name.trim(), `unit ${unit.id} name`).not.toBe('')
+      }
+    }
+  })
+
+  it('name a pitch, a chord or a scale for each hand', () => {
+    // A hand description that never mentions a note is a rhythm, not a part.
+    const musical = /\b[A-G][♯♭]?\b|scale|arpeggio|shell|voicing|triad|root|melody|chord|third|fifth|seventh|voice|blues|pentatonic/i
+    for (const unit of UNITS) {
+      const d = unit.independence('C')
+      expect(musical.test(d.leftHand), `unit ${unit.id} LH names nothing to play`).toBe(true)
+      expect(musical.test(d.rightHand), `unit ${unit.id} RH names nothing to play`).toBe(true)
+    }
+  })
+
+  it('is written for the session’s key, not a fixed one', () => {
+    // The property that matters is that the drill is parameterised at all —
+    // a drill hard-coded to C would read identically in every key.
+    for (const unit of UNITS.filter((u) => u.id <= 8)) {
+      const inC = JSON.stringify(unit.independence('C'))
+      const inAflat = JSON.stringify(unit.independence('A♭'))
+      expect(inC, `unit ${unit.id} reads the same in every key`).not.toBe(inAflat)
+    }
+  })
+
+  /**
+   * Same principle as unit material: a drill may name a tempo as the unit's
+   * reference point, but must not read as today's order, or it contradicts
+   * the Push and First-tempo-pass steps.
+   */
+  it('never states a bare tempo as an instruction', () => {
+    for (const unit of UNITS) {
+      const d = unit.independence('C')
+      const text = [d.leftHand, d.rightHand, d.rhythm, d.over].join(' ')
+      if (/♩=/.test(text)) {
+        expect(text, `unit ${unit.id} gives a tempo with no deference to the step`).toMatch(
+          /day’s step|first time you meet|target, not today’s/,
+        )
+      }
+    }
+  })
+
+  it('tells you what key you are in', () => {
+    for (const unit of UNITS.filter((u) => u.id <= 8)) {
+      for (const key of CYCLE_OF_FOURTHS) {
+        const d = unit.independence(key)
+        const text = [d.leftHand, d.rightHand, d.over].join(' ')
+        expect(text, `unit ${unit.id} in ${key} never names the key`).toContain(key)
+      }
+    }
+  })
+})
+
 describe('units', () => {
   it('link only to wiki topics that exist', () => {
     const slugs = new Set(TOPICS.map((t) => t.slug))

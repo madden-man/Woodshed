@@ -7,6 +7,7 @@ import { useProgress, type SyncState } from '../hooks/progress-context'
 import { useTimer } from '../hooks/timer-context'
 import SessionTimer from '../components/SessionTimer'
 import Fingering from '../components/Fingering'
+import Drill from '../components/Drill'
 
 export default function RegimenPage() {
   const params = useParams<{ number?: string }>()
@@ -124,6 +125,7 @@ export default function RegimenPage() {
                     <li key={j}>{item}</li>
                   ))}
                 </ul>
+                {block.drill && <Drill drill={block.drill} />}
                 <Fingering unitId={regimen.unit.id} blockId={block.id} scaleKey={regimen.key} />
               </div>
               <button
