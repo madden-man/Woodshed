@@ -3,9 +3,12 @@ import { CATEGORIES } from '../data/types'
 import { TOPICS } from '../data/theory'
 import { TOTAL_REGIMENS } from '../data/curriculum'
 import { useProgress } from '../hooks/progress-context'
+import { useTimer } from '../hooks/timer-context'
+import { formatClock } from '../lib/notify'
 
 export default function Layout() {
   const { current, finishedCount } = useProgress()
+  const timer = useTimer()
 
   return (
     <div className="shell">
@@ -20,9 +23,25 @@ export default function Layout() {
           <NavLink to="/regimen" end>
             Session {current}
           </NavLink>
-          <span className="key-chip" title={`${finishedCount} of ${TOTAL_REGIMENS} sessions finished`}>
-            {finishedCount}/{TOTAL_REGIMENS}
-          </span>
+          {timer.regimen !== null && timer.status !== 'idle' ? (
+            <NavLink
+              to={`/regimen/${timer.regimen}`}
+              className={timer.status === 'paused' ? 'timer-chip is-paused' : 'timer-chip'}
+            >
+              <span className="timer-chip-clock">
+                {timer.status === 'done' ? 'done' : formatClock(timer.remainingMs)}
+              </span>
+              <span className="timer-chip-block">
+                {timer.status === 'done'
+                  ? `Regimen ${timer.regimen}`
+                  : (timer.blocks[timer.blockIndex]?.title ?? '')}
+              </span>
+            </NavLink>
+          ) : (
+            <span className="key-chip" title={`${finishedCount} of ${TOTAL_REGIMENS} sessions finished`}>
+              {finishedCount}/{TOTAL_REGIMENS}
+            </span>
+          )}
         </nav>
       </header>
 

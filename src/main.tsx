@@ -3,14 +3,17 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { ProgressProvider } from './hooks/ProgressProvider'
+import { TimerProvider } from './hooks/TimerProvider'
 import './index.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ProgressProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <TimerProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </TimerProvider>
     </ProgressProvider>
   </StrictMode>,
 )

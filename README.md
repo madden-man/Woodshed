@@ -27,9 +27,14 @@ src/
   components/
     Layout.tsx      Masthead, category sidebar, outlet
     Blocks.tsx      Renders the Block union — one case per kind
+    SessionTimer.tsx  Start/pause/skip, current block, time remaining
   hooks/
     progress-context.ts   Context + useProgress()
     ProgressProvider.tsx  Loads progress once, writes through on toggle
+    timer-context.ts      Context + useTimer()
+    TimerProvider.tsx     Session timer; announces each block hand-off
+  lib/
+    notify.ts             Chime (Web Audio) + system notifications
   pages/
     Home.tsx           Wiki index, filter, what's up next
     TopicPage.tsx      A single wiki topic
@@ -112,6 +117,25 @@ schema are ignored rather than breaking anything.
 The client side is `src/api/progress.ts` (typed fetch, raises `ApiUnavailable`
 when the functions aren't running) and `src/hooks/ProgressProvider.tsx`, which
 loads every session's progress once and applies toggles optimistically.
+
+## The session timer
+
+Each block gets the minutes the length picker gives it (30/45/60/90 split
+across the five weights). At every hand-off the timer chimes and raises a
+system notification naming the next block.
+
+It lives in a provider above the router, so it keeps running when you click
+into a wiki topic mid-session — the masthead shows a compact readout that
+links back. Pause, skip to the next block, and stop are all there; the length
+picker locks while a session is being timed.
+
+`lib/notify.ts` handles both channels. Browsers won't start an AudioContext or
+grant notification permission from a background tick, so `prime()` is called
+from the click that starts the timer. If notifications are denied the chime
+still fires and the page says so.
+
+Elapsed time is one scalar derived from timestamps rather than an accumulating
+counter, so backgrounding the tab doesn't cause drift.
 
 ## Next
 

@@ -4,10 +4,13 @@ import { getRegimen, minutesFor, SESSION_LENGTHS, TOTAL_REGIMENS } from '../data
 import { KEYS } from '../data/keys'
 import { getTopic } from '../data/theory'
 import { useProgress, type SyncState } from '../hooks/progress-context'
+import { useTimer } from '../hooks/timer-context'
+import SessionTimer from '../components/SessionTimer'
 
 export default function RegimenPage() {
   const params = useParams<{ number?: string }>()
   const { completedBlocks, toggle, current, state, error } = useProgress()
+  const timer = useTimer()
   const [length, setLength] = useState<number>(60)
 
   // No number in the URL means "wherever I left off".
@@ -28,6 +31,8 @@ export default function RegimenPage() {
   const minutes = minutesFor(regimen.blocks, length)
   const done = completedBlocks(number)
   const info = KEYS[regimen.key]
+  const timerBlocks = regimen.blocks.map((b, i) => ({ id: b.id, title: b.title, ms: minutes[i] * 60_000 }))
+  const timingThis = timer.regimen === number && timer.status !== 'idle'
 
   return (
     <>
@@ -61,9 +66,18 @@ export default function RegimenPage() {
         </div>
       </div>
 
+      <SessionTimer regimen={number} blocks={timerBlocks} />
+
       <div className="length-picker" role="group" aria-label="Session length">
         {SESSION_LENGTHS.map((n) => (
-          <button key={n} type="button" aria-pressed={n === length} onClick={() => setLength(n)}>
+          <button
+            key={n}
+            type="button"
+            aria-pressed={n === length}
+            disabled={timingThis}
+            title={timingThis ? 'Stop the timer to change the session length' : undefined}
+            onClick={() => setLength(n)}
+          >
             {n} min
           </button>
         ))}
@@ -75,8 +89,12 @@ export default function RegimenPage() {
       <ol className="session">
         {regimen.blocks.map((block, i) => {
           const isDone = done.includes(block.id)
+          const isActive = timingThis && timer.blockIndex === i
+          let cls = 'block'
+          if (isDone) cls += ' is-done'
+          if (isActive) cls += ' is-active'
           return (
-            <li key={block.id} className={isDone ? 'block is-done' : 'block'}>
+            <li key={block.id} className={cls}>
               <div className="block-gutter">
                 <div className="block-num">Block {i + 1}</div>
                 <div className="block-min">
