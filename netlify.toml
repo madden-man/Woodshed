@@ -3,6 +3,10 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# The ask function imports the wiki from src/, so it needs a real bundler.
+[functions]
+  node_bundler = "esbuild"
+
 [dev]
   command = "npm run dev"
   targetPort = 5173

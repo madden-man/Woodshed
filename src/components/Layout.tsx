@@ -18,6 +18,7 @@ export default function Layout() {
         <nav className="top-nav">
           <NavLink to="/keys">Keys</NavLink>
           <NavLink to="/curriculum">Curriculum</NavLink>
+          <NavLink to="/ask">Ask</NavLink>
           <NavLink to="/regimen" end>
             Session {current}
           </NavLink>

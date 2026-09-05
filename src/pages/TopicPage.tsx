@@ -24,6 +24,10 @@ export default function TopicPage() {
 
       <Blocks blocks={topic.blocks} />
 
+      <p className="topic-ask">
+        Something here unclear? <Link to={`/ask?topic=${topic.slug}`}>Ask the teacher about this page</Link>.
+      </p>
+
       {topic.related && topic.related.length > 0 && (
         <footer className="related">
           <div className="eyebrow">See also</div>

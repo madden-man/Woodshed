@@ -5,6 +5,7 @@ import TopicPage from './pages/TopicPage'
 import KeysPage from './pages/KeysPage'
 import CurriculumPage from './pages/CurriculumPage'
 import RegimenPage from './pages/RegimenPage'
+import AskPage from './pages/AskPage'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="wiki/:slug" element={<TopicPage />} />
         <Route path="keys" element={<KeysPage />} />
         <Route path="curriculum" element={<CurriculumPage />} />
+        <Route path="ask" element={<AskPage />} />
         {/* No number: pick up wherever you left off. */}
         <Route path="regimen" element={<RegimenPage />} />
         <Route path="regimen/:number" element={<RegimenPage />} />

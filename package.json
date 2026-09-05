@@ -14,6 +14,7 @@
     "db:check": "netlify dev:exec node scripts/db-check.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.124.0",
     "mongodb": "^7.6.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

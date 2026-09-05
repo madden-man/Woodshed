@@ -47,6 +47,7 @@ src/
     KeysPage.tsx       All twelve keys as a reference table
     CurriculumPage.tsx All hundred sessions, grouped by unit
     RegimenPage.tsx    One session, scaled to the time you have
+    AskPage.tsx        Ask the teacher — a chat over the wiki, via /api/ask
 ```
 
 ## The curriculum
@@ -240,6 +241,32 @@ thumb-off-black-keys rule. That is the standard and it stays: the hand leaves
 the scale at the octave, so the principle has nothing left to protect there.
 The test exempts the octave note for that reason and no other.
 
+## Ask the teacher
+
+`/ask` is a chat about the wiki. The page posts the conversation to
+`/api/ask`, a Netlify function that streams an answer from Claude with the
+**whole wiki and curriculum as its system prompt**. `src/data/wiki-text.ts`
+renders every topic and block kind to plain text for that purpose (a keyboard
+becomes its notes, a rhythm grid its counts, a chart its bars), and the text is
+sent with a one-hour cache marker, so every question after the first is served
+from the prompt cache and only the conversation costs new tokens.
+
+The function uses `claude-opus-5` unless `ANTHROPIC_MODEL` says otherwise, and
+opts into the API's server-side refusal fallback so a declined request is
+retried on another model rather than returning nothing. Answers stream back as
+NDJSON; `src/lib/ask-protocol.ts` holds the wire format and the checks on the
+request, `src/lib/markdown.ts` the small renderer for the answers. Both are
+pure and tested. Every topic page links to `/ask?topic=slug`, which tells the
+assistant which page the reader is on.
+
+| Var | Value |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | required — the function refuses to start without it |
+| `ANTHROPIC_MODEL` | optional model override |
+
+As with the database, set them on the Netlify site, not in a committed file.
+Under plain `npm run dev` there is no function and the page says so.
+
 ## Database
 
 Netlify Functions on the `tommy-data` MongoDB, same pattern as TommysThoughts.
@@ -257,6 +284,7 @@ Set them on the Netlify site (`netlify env:set`) rather than in a local `.env`;
 netlify/
   lib/mongo.mjs           shared client, one per cold start
   functions/progress.mjs  GET/POST /api/progress
+  functions/ask.mjs       POST /api/ask — streams an answer about the wiki
 scripts/
   db-check.mjs            npm run db:check — verifies the connection
 ```

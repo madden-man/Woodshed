@@ -2197,3 +2197,230 @@ td.lead-cell {
 .block-reading {
   margin-top: 10px;
 }
+
+/* ---------------- ask the teacher ---------------- */
+
+.ask-context {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--ink-2);
+  margin-bottom: 18px;
+}
+
+.ask-context a {
+  color: var(--felt);
+  font-weight: 700;
+}
+
+.ask-context-clear {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted) !important;
+  font-weight: 400 !important;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.chat-empty {
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+
+.chat-starters {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chat-starters button {
+  font: inherit;
+  font-size: 14.5px;
+  text-align: left;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--rule-2);
+  border-radius: 3px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.chat-starters button:hover {
+  border-color: var(--felt);
+  color: var(--felt);
+}
+
+.chat-turn {
+  padding: 14px 18px;
+  border-radius: 4px;
+  max-width: 68ch;
+}
+
+.chat-turn.is-user {
+  background: var(--felt-soft);
+  align-self: flex-end;
+}
+
+.chat-turn.is-assistant {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+}
+
+.chat-turn p {
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+.chat-who {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.chat-thinking {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.chat-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule-2);
+  color: var(--felt);
+  font-size: 14px;
+}
+
+.chat-error button,
+.ask-clear {
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--rule-2);
+  border-radius: 3px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.chat-error button:hover,
+.ask-clear:hover {
+  color: var(--felt);
+  border-color: var(--felt);
+}
+
+.md p + p,
+.md ul,
+.md ol,
+.md h3,
+.md h4,
+.md pre {
+  margin-top: 10px;
+}
+
+.md h3,
+.md h4 {
+  font-size: 16px;
+}
+
+.md ul,
+.md ol {
+  padding-left: 22px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.md li + li {
+  margin-top: 4px;
+}
+
+.md a {
+  color: var(--felt);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.md code {
+  font-family: var(--f-mono);
+  font-size: 0.92em;
+  background: var(--surface-2);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.md pre {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  background: var(--surface-2);
+  padding: 10px 12px;
+  border-radius: 3px;
+  overflow-x: auto;
+}
+
+.ask-form {
+  position: sticky;
+  bottom: 0;
+  background: var(--ground);
+  padding: 12px 0 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.ask-form textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--rule-2);
+  border-radius: 4px;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 56px;
+}
+
+.ask-form textarea:focus {
+  outline: none;
+  border-color: var(--felt);
+}
+
+.ask-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.ask-actions .button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.topic-ask {
+  margin: 28px 0 0;
+  font-size: 14px;
+}
+
+.topic-ask a {
+  color: var(--felt);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
