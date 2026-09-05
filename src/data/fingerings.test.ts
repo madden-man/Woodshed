@@ -68,7 +68,9 @@ describe('major scale fingerings', () => {
     })
 
     it('never puts a thumb on a black key mid-scale', () => {
-      // The octave arrival is exempt: the hand leaves the scale there.
+      // The octave arrival is exempt: the hand leaves the scale there, so the
+      // principle has nothing left to protect. G♭ major's left hand is the one
+      // published fingering that relies on this, and it is deliberate.
       for (const hand of [scale.rh, scale.lh]) {
         for (let i = 0; i < 7; i++) {
           if (hand[i] === 1) expect(BLACK_KEYS.has(scale.notes[i]), `${key}: ${scale.notes[i]}`).toBe(false)

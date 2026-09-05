@@ -143,6 +143,12 @@ each scale must spell a major scale by interval, use one letter name per
 degree, keep the thumb off black keys mid-scale, and never jump fingers except
 across a crossing.
 
+G♭ major's left hand ends 4-3-2-1, which puts the thumb on the G♭ at the
+octave — the one place the published fingerings appear to break the
+thumb-off-black-keys rule. That is the standard and it stays: the hand leaves
+the scale at the octave, so the principle has nothing left to protect there.
+The test exempts the octave note for that reason and no other.
+
 ## Database
 
 Netlify Functions on the `tommy-data` MongoDB, same pattern as TommysThoughts.

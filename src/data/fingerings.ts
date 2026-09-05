@@ -12,6 +12,13 @@ import type { KeyName } from './keys'
  *    a starting point rather than as the answer, and labelled that way in the
  *    UI. Where a scale type has no standard fingering at all — blues,
  *    pentatonic — the guidance says so instead of inventing one.
+ *
+ * The published fingerings hold throughout, including the one place where they
+ * appear to break their own rule: G♭ major's left hand ends 4-3-2-1, putting
+ * the thumb on the G♭ at the octave. That is the standard, it is intentional,
+ * and it is not a typo to be tidied up — the hand leaves the scale there, so
+ * the thumb-off-black-keys principle has nothing left to protect. The test
+ * exempts the octave note for this reason and no other.
  */
 
 export interface ScaleFingering {
