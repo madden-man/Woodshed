@@ -24,7 +24,19 @@ export type Block =
   | { kind: 'table'; head: string[]; rows: string[][] }
   | { kind: 'callout'; title: string; text: string }
   | { kind: 'worked'; label: string; rows: WorkedRow[]; note?: string }
-  | { kind: 'keyboard'; label: string; notes: string[]; note?: string; startOctave?: number }
+  | {
+      kind: 'keyboard'
+      label: string
+      /** Bare names ascend from the last; names with an octave ("F4") land there. */
+      notes: string[]
+      /** Finger per note, aligned to `notes`. */
+      fingers?: (number | null)[]
+      hand?: 'RH' | 'LH'
+      /** Force the drawn range, so several diagrams of one progression line up. */
+      span?: [string, string]
+      note?: string
+      startOctave?: number
+    }
 
 export interface Topic {
   slug: string

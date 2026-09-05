@@ -87,7 +87,13 @@ function BlockView({ block }: { block: Block }) {
         <figure className="keyboard-figure">
           <figcaption>{block.label}</figcaption>
           <div className="keyboard-scroll">
-            <Keyboard notes={block.notes} startOctave={block.startOctave} />
+            <Keyboard
+              notes={block.notes}
+              fingers={block.fingers}
+              hand={block.hand}
+              span={block.span}
+              startOctave={block.startOctave}
+            />
           </div>
           {block.note && <p className="note">{block.note}</p>}
         </figure>

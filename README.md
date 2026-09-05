@@ -142,13 +142,23 @@ is unreadable until someone spells it out, so:
 Both are enforced by tests, including a minimum length on a worked row's
 explanation — it caught three rows where I'd written "the tritone" and moved on.
 
-Anywhere the answer is "which notes", there is a `keyboard` block. Notes are
-given as names in playing order and laid out ascending — each at the next
-occurrence of its pitch class above the last — so `['D', 'F', 'C']` draws the C
-an octave up, exactly where the hand puts it. Marked keys get a dot rather than
-a fill: filling them turned a seven-note scale into a solid block and left a
-marked black key nowhere to go. The first note is the root and takes the accent
-colour. `lib/keyboard.ts` is pure geometry and tested on its own.
+Anywhere the answer is "which notes", there is a `keyboard` block. Marked keys
+get a dot rather than a fill — filling them turned a seven-note scale into a
+solid block and left a marked black key nowhere to go — and where a standard
+fingering exists the number sits inside the dot. Every diagram is at least an
+octave wide so the notes have something to sit against.
+
+Notes are written one of two ways, and the difference matters. A bare name is
+placed ascending, at the next occurrence above the note before it, which is how
+you read a chord off the page. **A name with an octave — `F4` — lands exactly
+there.** Give a progression one `span` and absolute notes and its chords are
+drawn over the same keys, so a held guide tone is visibly the same key in every
+picture. Drawing each chord from its own octave instead makes the shared note
+jump between diagrams, which is the opposite of what shell voicings teach; that
+shipped once, and there is now a test that consecutive chords of a progression
+either hold a note or move it by a single key.
+
+`lib/keyboard.ts` is pure geometry and tested on its own.
 
 A third rule applies to any voicing the wiki teaches: **it has to fit one hand.**
 A test parses the note names back out and rejects a taught shape spanning more

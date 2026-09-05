@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { TOPICS, getTopic } from './theory'
 import { ascend, layoutKeyboard } from '../lib/keyboard'
+import { MAJOR_SCALES } from './fingerings'
 import { CATEGORIES } from './types'
 
 describe('the wiki', () => {
@@ -232,23 +233,35 @@ describe('shell voicings are spelled correctly', () => {
   })
 
   /**
-   * A shape wider than an octave means stretching, which is the wrong default
-   * for a left hand that also has to move. 1-7-3 puts every chord in this
-   * progression at a 10th, so the page teaches 1-3-7 first.
+   * The shapes taught first have to fit an ordinary hand. The three-note
+   * versions run to a 10th, which is allowed only because the page says so and
+   * offers a way round it — the wider shape is a choice, not a surprise.
    */
-  it('keeps every taught shape within an octave', () => {
+  it('keeps the shapes it teaches first inside one hand', () => {
+    const first = topic.blocks.filter(
+      (b) => b.kind === 'keyboard' && /root and/.test(b.label),
+    )
+    expect(first.length, 'the two-note shells should be taught first').toBeGreaterThanOrEqual(3)
+    for (const block of first) {
+      if (block.kind !== 'keyboard') continue
+      const p = ascend(block.notes)
+      expect(Math.max(...p) - Math.min(...p), block.label).toBeLessThanOrEqual(12)
+    }
+  })
+
+  it('warns about the reach wherever a shape exceeds an octave', () => {
     if (spelled?.kind !== 'worked') throw new Error('missing block')
-    for (const row of spelled.rows) {
-      const notes = row.gives.split('–').map((n) => PITCH[n.trim()])
-      let previous = notes[0]
-      let top = notes[0]
-      for (const pc of notes.slice(1)) {
-        let pitch = pc
-        while (pitch <= previous) pitch += 12
-        previous = pitch
-        top = pitch
-      }
-      expect(top - notes[0], `${row.symbol} spans too far for one hand`).toBeLessThanOrEqual(12)
+    const widest = Math.max(
+      ...spelled.rows.map((row) => {
+        const p = ascend(row.gives.split('–').map((n) => n.trim()))
+        return Math.max(...p) - Math.min(...p)
+      }),
+    )
+    if (widest > 12) {
+      const prose = topic.blocks
+        .map((b) => (b.kind === 'callout' ? `${b.title} ${b.text}` : b.kind === 'prose' ? b.text : ''))
+        .join(' ')
+      expect(prose, 'a 10th is taught with no mention of the stretch').toMatch(/10th|stretch|reach/i)
     }
   })
 
@@ -293,23 +306,54 @@ describe('keyboard diagrams', () => {
   it('name notes the keyboard can actually draw', () => {
     for (const { topic, block } of diagrams) {
       if (block.kind !== 'keyboard') continue
-      expect(() => layoutKeyboard(block.notes), `${topic}: ${block.label}`).not.toThrow()
+      expect(() => layoutKeyboard(block.notes, { span: block.span }), `${topic}: ${block.label}`).not.toThrow()
     }
   })
 
   it('light every note they were given', () => {
     for (const { topic, block } of diagrams) {
       if (block.kind !== 'keyboard') continue
-      const { keys } = layoutKeyboard(block.notes)
+      const { keys } = layoutKeyboard(block.notes, { span: block.span })
       const lit = keys.filter((k) => k.highlight !== 'none')
       expect(lit.length, `${topic}: ${block.label}`).toBe(new Set(ascend(block.notes)).size)
     }
   })
 
+  it('are at least an octave wide, so the notes have somewhere to sit', () => {
+    for (const { topic, block } of diagrams) {
+      if (block.kind !== 'keyboard') continue
+      const { keys } = layoutKeyboard(block.notes, { span: block.span })
+      const pitches = keys.map((k) => k.pitch)
+      expect(Math.max(...pitches) - Math.min(...pitches), `${topic}: ${block.label}`).toBeGreaterThanOrEqual(12)
+    }
+  })
+
+  it('give a finger to every note, or to none of them', () => {
+    for (const { topic, block } of diagrams) {
+      if (block.kind !== 'keyboard' || !block.fingers) continue
+      expect(block.fingers.length, `${topic}: ${block.label}`).toBe(block.notes.length)
+      for (const f of block.fingers) {
+        if (f === null) continue
+        expect(f, `${topic}: ${block.label}`).toBeGreaterThanOrEqual(1)
+        expect(f, `${topic}: ${block.label}`).toBeLessThanOrEqual(5)
+      }
+    }
+  })
+
+  it('match the standard fingering where the app already states one', () => {
+    // The C major diagram must agree with what the regimen tells you to play.
+    const c = TOPICS.flatMap((t) => t.blocks).find(
+      (b) => b.kind === 'keyboard' && /C major scale/.test(b.label),
+    )
+    if (c?.kind !== 'keyboard') throw new Error('missing C major diagram')
+    expect(c.fingers).toEqual(MAJOR_SCALES.C.rh)
+    expect(c.hand).toBe('RH')
+  })
+
   it('stay small enough to read without scrolling on a phone', () => {
     for (const { topic, block } of diagrams) {
       if (block.kind !== 'keyboard') continue
-      const { width } = layoutKeyboard(block.notes)
+      const { width } = layoutKeyboard(block.notes, { span: block.span })
       expect(width, `${topic}: ${block.label} is ${width}px wide`).toBeLessThanOrEqual(22 * 15)
     }
   })
@@ -321,12 +365,58 @@ describe('keyboard diagrams', () => {
     if (spelled?.kind !== 'worked') throw new Error('missing block')
 
     for (const row of spelled.rows) {
-      const chord = row.symbol.split(' as ')[0]
-      const diagram = shell.blocks.find(
-        (b) => b.kind === 'keyboard' && b.label === `${chord} as 1-3-7`,
-      )
-      if (diagram?.kind !== 'keyboard') throw new Error(`no keyboard for ${chord}`)
-      expect(diagram.notes.join(' – '), chord).toBe(row.gives)
+      const diagram = shell.blocks.find((b) => b.kind === 'keyboard' && b.label.startsWith(row.symbol))
+      if (diagram?.kind !== 'keyboard') throw new Error(`no keyboard for "${row.symbol}"`)
+      const drawn = diagram.notes.map((n) => n.replace(/-?\d+$/, '')).join(' – ')
+      expect(drawn, row.symbol).toBe(row.gives)
+    }
+  })
+
+  /**
+   * The bug this exists for: every chord of the ii–V–I was drawn from its own
+   * octave, so the shared guide tone appeared as F4 on one diagram and F5 on
+   * the next. Voice leading is about register — a note that "stays" has to be
+   * visibly the same key.
+   */
+  it('voice-lead between consecutive chords of a progression', () => {
+    const shell = TOPICS.find((t) => t.slug === 'shell-voicings')!
+    const bySpan = new Map<string, string[][]>()
+    for (const b of shell.blocks) {
+      if (b.kind !== 'keyboard' || !b.span) continue
+      // Only the per-chord diagrams; the summary one shows every note at once.
+      if (/stacked up|both ways/i.test(b.label)) continue
+      const key = b.span.join('-')
+      bySpan.set(key, [...(bySpan.get(key) ?? []), b.notes])
+    }
+
+    expect(bySpan.size, 'no progression is drawn over a shared span').toBeGreaterThan(0)
+
+    for (const [span, chords] of bySpan) {
+      expect(chords.length, span).toBeGreaterThanOrEqual(3)
+      for (let i = 1; i < chords.length; i++) {
+        // The root is free to leap — it is the guide tones above it that must
+        // either hold or move by a single key.
+        const before = ascend(chords[i - 1]).slice(1)
+        const now = ascend(chords[i]).slice(1)
+        expect(now.length, span).toBe(before.length)
+
+        for (const pitch of now) {
+          const nearest = Math.min(...before.map((p) => Math.abs(p - pitch)))
+          expect(
+            nearest,
+            `${span}: between chords ${i} and ${i + 1}, ${pitch} is ${nearest} keys from anything before it`,
+          ).toBeLessThanOrEqual(1)
+        }
+      }
+    }
+  })
+
+  it('draw a progression’s chords over one span, not each from its own octave', () => {
+    const shell = TOPICS.find((t) => t.slug === 'shell-voicings')!
+    for (const b of shell.blocks) {
+      if (b.kind !== 'keyboard' || !b.span) continue
+      // A shared span is only meaningful if the notes say which octave they are in.
+      for (const n of b.notes) expect(n, `${b.label}: "${n}" has no octave`).toMatch(/\d$/)
     }
   })
 })

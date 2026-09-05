@@ -1,10 +1,15 @@
 /**
- * Geometry for the little keyboard diagrams in the wiki.
+ * Geometry for the keyboard diagrams in the wiki.
  *
- * Notes come in as names, in the order you play them, and are laid out
- * ascending — each one at the next occurrence of its pitch class above the
- * last. That is the same rule the shell voicings use, so "D, F, C" draws D and
- * F together with the C an octave up, exactly as it sits under the hand.
+ * Notes can be written two ways. A bare name — "F" — is placed ascending, at
+ * the next occurrence above the note before it, which is how you read a chord
+ * off the page. A name with an octave — "F4" — is placed exactly there.
+ *
+ * The octave form exists because register is the whole point of voice leading.
+ * Drawing each chord of a ii–V–I from its own octave makes the shared guide
+ * tone jump between diagrams, which is the opposite of what the shells are
+ * teaching. Give the progression one `span` and absolute notes, and a held note
+ * is visibly the same key in every picture.
  */
 
 export const PITCH_CLASS: Record<string, number> = {
@@ -17,37 +22,33 @@ export const PITCH_CLASS: Record<string, number> = {
   'B♭': 10, B: 11, 'B♯': 0,
 }
 
-/** Pitch classes with a black key. */
 const BLACK = new Set([1, 3, 6, 8, 10])
-
-/** Letter name of each white pitch class, for keys the caller didn't name. */
 const WHITE_NAME: Record<number, string> = { 0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B' }
 
 export const KEY_W = 22
-export const KEY_H = 86
+export const KEY_H = 92
 export const BLACK_W = 13
-export const BLACK_H = 53
+export const BLACK_H = 57
 
-/**
- * How far a black key sits off the boundary between its neighbours, in pixels.
- * Real keyboards splay them outward within each group; centring them all looks
- * subtly wrong, and this is enough to fix it.
- */
+/** Real keyboards splay the black keys within each group; centring them all reads wrong. */
 const BLACK_NUDGE: Record<number, number> = { 1: -1.5, 3: 1.5, 6: -2, 8: 0, 10: 2 }
+
+/** A diagram narrower than an octave gives the eye nothing to place the notes against. */
+export const MIN_SEMITONES = 12
 
 export type Highlight = 'none' | 'root' | 'on'
 
 export interface KeyboardKey {
   pitch: number
-  /** The spelling to show — the caller's if they named it, else the letter. */
   name: string
   isBlack: boolean
   x: number
   width: number
   height: number
   highlight: Highlight
-  /** Where this note falls in the caller's list, for ordered labels. */
   order?: number
+  /** Finger number to print on the key, if one was given. */
+  finger?: number
 }
 
 export interface KeyboardLayout {
@@ -56,87 +57,123 @@ export interface KeyboardLayout {
   height: number
 }
 
+export interface LayoutOptions {
+  /** Octave for the first note when it has none of its own. */
+  startOctave?: number
+  /** Force the drawn range, e.g. ['G2', 'A4'] — use one span for a progression. */
+  span?: [string, string]
+  /** Finger per note, aligned to `notes`. */
+  fingers?: (number | null)[]
+}
+
 export function isBlackKey(name: string): boolean {
   const pc = PITCH_CLASS[name]
   return pc !== undefined && BLACK.has(pc)
 }
 
-/** Place the named notes ascending, each above the last. Returns absolute pitches. */
+/** Split "A♭3" into its pitch class and octave; a bare "A♭" has no octave. */
+export function parseNote(note: string): { pc: number; octave: number | null } {
+  const match = /^([A-G][♯♭]?)(-?\d+)?$/.exec(note)
+  if (!match) throw new Error(`unknown note "${note}"`)
+  const pc = PITCH_CLASS[match[1]]
+  if (pc === undefined) throw new Error(`unknown note "${note}"`)
+  return { pc, octave: match[2] === undefined ? null : Number(match[2]) }
+}
+
+export function pitchOf(note: string, fallbackOctave: number): number {
+  const { pc, octave } = parseNote(note)
+  return (octave ?? fallbackOctave) * 12 + pc
+}
+
+/**
+ * Absolute pitches for the notes. Anything carrying its own octave lands there;
+ * anything bare is placed at the next occurrence above the note before it.
+ */
 export function ascend(notes: string[], startOctave = 4): number[] {
   const out: number[] = []
-  for (const name of notes) {
-    const pc = PITCH_CLASS[name]
-    if (pc === undefined) throw new Error(`unknown note "${name}"`)
+  for (const note of notes) {
+    const { pc, octave } = parseNote(note)
+    if (octave !== null) {
+      out.push(octave * 12 + pc)
+      continue
+    }
     if (out.length === 0) {
       out.push(startOctave * 12 + pc)
       continue
     }
-    let pitch = Math.floor(out[out.length - 1] / 12) * 12 + pc
-    while (pitch <= out[out.length - 1]) pitch += 12
+    const previous = out[out.length - 1]
+    let pitch = Math.floor(previous / 12) * 12 + pc
+    while (pitch <= previous) pitch += 12
     out.push(pitch)
   }
   return out
 }
 
-/**
- * Draw just enough keyboard to hold the notes, from the white key at or below
- * the lowest to the white key at or above the highest. Starting from the C
- * below instead would waste most of an octave whenever the lowest note is a B,
- * and these diagrams have to stay readable on a phone. Both ends land on white
- * keys so no black key is ever drawn half off the edge.
- */
-export function layoutKeyboard(notes: string[], startOctave = 4): KeyboardLayout {
+function downToWhite(pitch: number): number {
+  let p = pitch
+  while (BLACK.has(((p % 12) + 12) % 12)) p--
+  return p
+}
+
+function upToWhite(pitch: number): number {
+  let p = pitch
+  while (BLACK.has(((p % 12) + 12) % 12)) p++
+  return p
+}
+
+export function layoutKeyboard(notes: string[], options: LayoutOptions = {}): KeyboardLayout {
+  const { startOctave = 4, span, fingers } = options
   const pitches = ascend(notes, startOctave)
+
   const marked = new Map<number, number>()
   pitches.forEach((p, i) => {
     if (!marked.has(p)) marked.set(p, i)
   })
 
-  let lowest = Math.min(...pitches)
-  let highest = Math.max(...pitches)
-  // Land on white keys at both ends, so no black key is drawn half off the edge.
-  while (BLACK.has(((lowest % 12) + 12) % 12)) lowest--
-  while (BLACK.has(((highest % 12) + 12) % 12)) highest++
+  let from: number
+  let to: number
 
-  const from = lowest
+  if (span) {
+    from = downToWhite(pitchOf(span[0], startOctave))
+    to = upToWhite(pitchOf(span[1], startOctave))
+  } else {
+    from = downToWhite(Math.min(...pitches))
+    to = upToWhite(Math.max(...pitches))
+    // Open it out to at least an octave so the notes have something to sit against.
+    while (to - from < MIN_SEMITONES) {
+      to = upToWhite(to + 1)
+      if (to - from < MIN_SEMITONES) from = downToWhite(from - 1)
+    }
+  }
 
   const keys: KeyboardKey[] = []
   let whites = 0
 
-  for (let pitch = from; pitch <= highest; pitch++) {
+  for (let pitch = from; pitch <= to; pitch++) {
     const pc = ((pitch % 12) + 12) % 12
     const order = marked.get(pitch)
     const highlight: Highlight = order === undefined ? 'none' : order === 0 ? 'root' : 'on'
-    const name = order === undefined ? (WHITE_NAME[pc] ?? '') : notes[order]
+    const name = order === undefined ? (WHITE_NAME[pc] ?? '') : notes[order].replace(/-?\d+$/, '')
+    const finger = order === undefined ? undefined : (fingers?.[order] ?? undefined)
 
     if (BLACK.has(pc)) {
-      // Sits over the join between the white key just placed and the next.
       keys.push({
-        pitch,
-        name,
-        isBlack: true,
+        pitch, name, isBlack: true,
         x: whites * KEY_W - BLACK_W / 2 + (BLACK_NUDGE[pc] ?? 0),
-        width: BLACK_W,
-        height: BLACK_H,
-        highlight,
-        order,
+        width: BLACK_W, height: BLACK_H, highlight, order,
+        finger: finger ?? undefined,
       })
     } else {
       keys.push({
-        pitch,
-        name,
-        isBlack: false,
-        x: whites * KEY_W,
-        width: KEY_W,
-        height: KEY_H,
-        highlight,
-        order,
+        pitch, name, isBlack: false,
+        x: whites * KEY_W, width: KEY_W, height: KEY_H, highlight, order,
+        finger: finger ?? undefined,
       })
       whites++
     }
   }
 
-  // White keys first so the black ones draw over them.
+  // White keys first, so the black ones draw over them.
   keys.sort((a, b) => Number(a.isBlack) - Number(b.isBlack))
 
   return { keys, width: whites * KEY_W, height: KEY_H }

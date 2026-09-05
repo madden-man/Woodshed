@@ -1,38 +1,51 @@
 import { layoutKeyboard } from '../lib/keyboard'
 
-interface Props {
-  /** Note names in playing order; laid out ascending, each above the last. */
+export interface KeyboardProps {
+  /** Bare names ascend from the last; names with an octave ("F4") land there. */
   notes: string[]
-  /** Print the note name under each marked key. */
+  /** Finger per note, aligned to `notes`. Printed on the key. */
+  fingers?: (number | null)[]
+  /** Which hand the fingering is for. */
+  hand?: 'RH' | 'LH'
+  /** Force the drawn range so several diagrams line up. */
+  span?: [string, string]
   labels?: boolean
   startOctave?: number
 }
 
 /**
- * A small keyboard with the notes in question marked.
+ * A keyboard with the notes in question marked.
  *
- * Marked keys get a dot rather than a fill. Filling them meant a seven-note
- * scale turned the whole drawing into a solid block, and a marked black key
- * had nowhere to go — a dot reads on both, and the thing still looks like a
- * keyboard. The first note is the root and takes the accent colour.
+ * Marked keys get a dot rather than a fill: filling them turned a seven-note
+ * scale into a solid block and left a marked black key nowhere to go. Where a
+ * fingering is given the number sits inside the dot. The first note is the
+ * root and takes the accent colour.
  */
-export default function Keyboard({ notes, labels = true, startOctave = 4 }: Props) {
-  const { keys, width, height } = layoutKeyboard(notes, startOctave)
+export default function Keyboard({ notes, fingers, hand, span, labels = true, startOctave = 4 }: KeyboardProps) {
+  const { keys, width, height } = layoutKeyboard(notes, { startOctave, span, fingers })
   const pad = labels ? 18 : 4
+  const left = hand ? 26 : 0
 
   return (
     <svg
       className="keyboard"
-      viewBox={`-1 -1 ${width + 2} ${height + pad + 2}`}
-      width={width + 2}
+      viewBox={`${-left - 1} -1 ${width + left + 2} ${height + pad + 2}`}
+      width={width + left + 2}
       height={height + pad + 2}
       role="img"
-      aria-label={`Keyboard showing ${notes.join(', ')}`}
+      aria-label={`Keyboard showing ${notes.join(', ')}${hand ? `, ${hand} fingering` : ''}`}
     >
+      {hand && (
+        <text x={-left + 2} y={height / 2} className="keyboard-hand" dominantBaseline="middle">
+          {hand}
+        </text>
+      )}
+
       {keys.map((key) => {
         const marked = key.highlight !== 'none'
         const mark = key.highlight === 'root' ? 'var(--felt)' : 'var(--brass)'
-        const dotY = key.height - (key.isBlack ? 11 : 15)
+        const r = key.isBlack ? 5 : 7
+        const dotY = key.height - (key.isBlack ? 12 : 16)
 
         return (
           <g key={key.pitch}>
@@ -47,26 +60,29 @@ export default function Keyboard({ notes, labels = true, startOctave = 4 }: Prop
               strokeWidth={0.8}
             />
             {marked && (
-              <circle
-                cx={key.x + key.width / 2}
-                cy={dotY}
-                r={key.isBlack ? 4.4 : 6}
-                fill={mark}
-                stroke={key.isBlack ? 'var(--surface)' : 'none'}
-                strokeWidth={key.isBlack ? 0.9 : 0}
-              />
+              <>
+                <circle
+                  cx={key.x + key.width / 2}
+                  cy={dotY}
+                  r={r}
+                  fill={mark}
+                  stroke={key.isBlack ? 'var(--surface)' : 'none'}
+                  strokeWidth={key.isBlack ? 0.9 : 0}
+                />
+                {key.finger !== undefined && (
+                  <text
+                    x={key.x + key.width / 2}
+                    y={dotY}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className="keyboard-finger"
+                  >
+                    {key.finger}
+                  </text>
+                )}
+              </>
             )}
-            {labels && marked && !key.isBlack && (
-              <text
-                x={key.x + key.width / 2}
-                y={height + 13}
-                textAnchor="middle"
-                className={key.highlight === 'root' ? 'keyboard-label is-root' : 'keyboard-label'}
-              >
-                {key.name}
-              </text>
-            )}
-            {labels && marked && key.isBlack && (
+            {labels && marked && (
               <text
                 x={key.x + key.width / 2}
                 y={height + 13}
