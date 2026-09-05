@@ -1,26 +1,19 @@
 import { useState } from 'react'
 import { buildSession, drillForDay, minutesFor, SESSION_LENGTHS } from '../data/regimen'
-import { keyForDay, nextKey, KEYS } from '../data/keys'
+import { isoDay, keyForDay, nextKey, KEYS } from '../data/keys'
+import { useDayProgress, type SyncState } from '../hooks/useDayProgress'
 
 export default function RegimenPage() {
   const [length, setLength] = useState<number>(60)
-  const [done, setDone] = useState<Set<string>>(new Set())
   // Read the clock once, on mount, so the session doesn't shift under a re-render.
   const [today] = useState(() => new Date())
 
   const key = keyForDay(today)
+  const date = isoDay(today)
   const blocks = buildSession(key, today.getDay(), drillForDay(today))
   const minutes = minutesFor(blocks, length)
 
-  function toggle(id: string) {
-    setDone((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
+  const { completed, toggle, state, error } = useDayProgress(date, key)
   const info = KEYS[key]
 
   return (
@@ -41,23 +34,18 @@ export default function RegimenPage() {
 
       <div className="length-picker" role="group" aria-label="Session length">
         {SESSION_LENGTHS.map((n) => (
-          <button
-            key={n}
-            type="button"
-            aria-pressed={n === length}
-            onClick={() => setLength(n)}
-          >
+          <button key={n} type="button" aria-pressed={n === length} onClick={() => setLength(n)}>
             {n} min
           </button>
         ))}
         <span className="picker-count">
-          {done.size} of {blocks.length} blocks
+          {completed.length} of {blocks.length} blocks
         </span>
       </div>
 
       <ol className="session">
         {blocks.map((block, i) => {
-          const isDone = done.has(block.id)
+          const isDone = completed.includes(block.id)
           return (
             <li key={block.id} className={isDone ? 'block is-done' : 'block'}>
               <div className="block-gutter">
@@ -81,6 +69,7 @@ export default function RegimenPage() {
                 className="check"
                 aria-pressed={isDone}
                 aria-label={`Mark ${block.title} complete`}
+                disabled={state === 'loading'}
                 onClick={() => toggle(block.id)}
               >
                 ✓
@@ -90,14 +79,46 @@ export default function RegimenPage() {
         })}
       </ol>
 
+      <SyncNotice state={state} error={error} />
+    </>
+  )
+}
+
+const SYNC_LABEL: Record<SyncState, string> = {
+  loading: 'Loading today’s progress…',
+  saving: 'Saving…',
+  synced: 'Saved to tommy-data',
+  offline: 'Not saving',
+  error: 'Save failed',
+}
+
+function SyncNotice({ state, error }: { state: SyncState; error: string | null }) {
+  if (state === 'offline') {
+    return (
       <aside className="callout">
-        <div className="callout-title">Not saved yet</div>
+        <div className="callout-title">Not saving</div>
         <p>
-          Check-offs live in component state for now, so they reset on reload. Persistence and a practice history
-          are the next pass — the session shape and the block ids in <span className="mono">data/regimen.ts</span>{' '}
-          are already stable enough to key a store off.
+          The practice API isn’t running, so check-offs live in memory and reset on reload. Start the app with{' '}
+          <span className="mono">npm start</span> (netlify dev) rather than <span className="mono">npm run dev</span>{' '}
+          to connect to Mongo.
         </p>
       </aside>
-    </>
+    )
+  }
+
+  if (state === 'error') {
+    return (
+      <aside className="callout">
+        <div className="callout-title">Save failed</div>
+        <p>{error ?? 'Something went wrong writing to the database.'} Your check-offs are still on screen.</p>
+      </aside>
+    )
+  }
+
+  return (
+    <p className={state === 'synced' ? 'sync-line is-synced' : 'sync-line'}>
+      <span className="sync-dot" aria-hidden="true" />
+      {SYNC_LABEL[state]}
+    </p>
   )
 }

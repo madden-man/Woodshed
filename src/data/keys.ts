@@ -60,3 +60,9 @@ export function nextKey(key: KeyName): KeyName {
   const i = CYCLE_OF_FOURTHS.indexOf(key)
   return CYCLE_OF_FOURTHS[(i + 1) % 12]
 }
+
+/** The practice day as YYYY-MM-DD in local time — the key each progress doc is stored under. */
+export function isoDay(date: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}

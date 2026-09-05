@@ -779,3 +779,32 @@ td.lead-cell {
     animation: none !important;
   }
 }
+
+/* ---------------- sync status ---------------- */
+
+.sync-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rule-2);
+}
+
+.sync-line.is-synced .sync-dot {
+  background: var(--moss);
+}
+
+.check:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

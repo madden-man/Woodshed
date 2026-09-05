@@ -6,10 +6,14 @@ A jazz piano theory wiki and daily practice regimen, built around the cycle of f
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
+npm start        # netlify dev — Vite + functions + Mongo (http://localhost:8888)
+npm run dev      # Vite only, no database (http://localhost:5173)
 npm run build    # typecheck + production build
 npm run lint
 ```
+
+`npm run dev` works fine for wiki work; the regimen page just says it isn't
+saving. Use `npm start` when you need the database.
 
 ## Layout
 
@@ -39,8 +43,36 @@ Content is composed of `Block`s — `prose`, `list`, `progression`, `table` and
 `callout`. To add a new kind, extend the union in `data/types.ts` and add a case
 to `components/Blocks.tsx`; TypeScript will point at the switch if you forget.
 
+## Database
+
+Netlify Functions on the `tommy-data` MongoDB, same pattern as TommysThoughts.
+
+| Var | Value |
+| --- | --- |
+| `MONGODB_URI` | the Atlas connection string |
+| `MONGODB_DB` | `tommy-data` (optional — the code defaults to it) |
+
+Set them on the Netlify site (`netlify env:set`) rather than in a local `.env`;
+`netlify dev` injects them. Nothing reads a committed secret.
+
+```
+netlify/
+  lib/mongo.mjs           shared client, one per cold start
+  functions/progress.mjs  GET/POST /api/progress
+```
+
+`woodshed_progress` holds one document per practice day:
+
+```json
+{ "date": "2026-09-05", "key": "C", "completed": ["warmup", "scales"], "updatedAt": "..." }
+```
+
+The client side is `src/api/progress.ts` (typed fetch, raises `ApiUnavailable`
+when the functions aren't running) and `src/hooks/useDayProgress.ts`, which
+applies toggles optimistically and writes through.
+
 ## Next
 
-- Persist regimen check-offs (block ids in `data/regimen.ts` are stable enough to key a store off) and keep a practice history.
 - Tempo log per key, feeding Saturday's "weak keys" focus.
+- Practice history / streak view off `GET /api/progress?days=30`, which already returns it.
 - Metronome with the click on 2 and 4.
