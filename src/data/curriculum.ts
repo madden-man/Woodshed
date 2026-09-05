@@ -77,7 +77,7 @@ export const UNITS: Unit[] = [
       over: `Eight bars on ${KEYS[k].I}, then the ii–V–I in ${k}, two bars a chord.`,
       watchFor: 'The right hand flinching where the left hand strikes. If the eighths bump at all, halve the tempo.',
     }),
-    tune: () => ['Autumn Leaves — melody alone, in time, from memory. No chart.'],
+    tune: () => ['Autumn Leaves — the melody alone, in time, no chart. Sing it through once before you play it; if the singing stalls, that bar is the one to work on.'],
   },
   {
     id: 2,
@@ -127,7 +127,7 @@ export const UNITS: Unit[] = [
       over: `ii–V–I in ${k}, two bars a chord.`,
       watchFor: 'The hands creeping into unison. If they ever land on the same eighth, the drill has stopped doing anything.',
     }),
-    tune: () => ['Blue Bossa — melody from memory, then comping in rootless A behind it'],
+    tune: () => ['Blue Bossa — melody without the chart, then rootless A comping behind it. Sing the melody while the left hand comps, so you can hear that you actually hold it.'],
   },
   {
     id: 4,
@@ -153,7 +153,7 @@ export const UNITS: Unit[] = [
       over: `ii–V–I in ${k}, one bar a chord. ♩=60 the first time you meet this; after that the day’s step sets the tempo.`,
       watchFor: 'The bass line hesitating whenever the right hand plays. The left hand must not know the right hand exists.',
     }),
-    tune: () => ['Take the A Train — head, then two choruses of comping recorded on your phone, then solo over it'],
+    tune: () => ['Take the A Train — head, then record two choruses of comping on your phone and improvise over the playback. Listening back to your own comping is the fastest way to hear your time.'],
   },
   {
     id: 5,
@@ -327,7 +327,7 @@ export const VARIANTS: Variant[] = [
     scales: 'Hands separately, no click, as slow as it takes to be perfect',
     voicings: 'Left hand alone until the shape is automatic, then right hand alone',
     independence: 'Each hand on its own first. Do not combine them today.',
-    tune: 'Listen to a recording of it twice before you touch the keys',
+    tune: 'Two listens before you touch the keys, and no playing along. First time follow only the melody; second time follow only the bass line. You are learning the shape of the tune, not shadowing a record.',
   },
   {
     name: 'Hands together',
@@ -335,7 +335,7 @@ export const VARIANTS: Variant[] = [
     scales: 'Hands together at half your target tempo, no exceptions',
     voicings: 'Both hands, slowly, watching the voice leading rather than the chord symbols',
     independence: 'Both hands, half tempo, stopping the moment it gets ragged',
-    tune: 'Melody in time, from memory, no chart',
+    tune: 'Melody in time, no chart. The test for “from memory” happens away from the piano: if you cannot sing the whole head sitting in a chair, you are still reading it — go back and listen again rather than pushing on.',
   },
   {
     name: 'Rearrange',
@@ -343,7 +343,7 @@ export const VARIANTS: Variant[] = [
     scales: 'In 3rds — up a third, down a third — and starting from a degree other than the root',
     voicings: 'Start the progression from the V, then from the I. Same voicings, new entry point.',
     independence: 'Displace the left hand by an eighth note and hold it there',
-    tune: 'Start at the bridge. If you can only enter at bar 1, you do not know it.',
+    tune: 'Start at the bridge, from memory. Sing four bars of it first, then play them. If you can only enter at bar 1 you have memorised a sequence of movements rather than a tune.',
   },
   {
     name: 'First tempo pass',
@@ -375,7 +375,7 @@ export const VARIANTS: Variant[] = [
     scales: 'Same material a fourth above today’s key, worked out by ear',
     voicings: 'The progression a fourth up without writing anything down',
     independence: 'Same drill in the new key',
-    tune: 'The head a fourth up. Relearn it by ear — do not transpose shapes.',
+    tune: 'The head a fourth up, found by ear. Sing the first phrase in the new key before your hands go anywhere near it — singing first is the thing that stops you transposing shapes instead of hearing.',
   },
   {
     name: 'Combine',
@@ -399,7 +399,7 @@ export const VARIANTS: Variant[] = [
     scales: 'Your three slowest keys from this unit, at a comfortable tempo',
     voicings: 'The progression you find hardest, ten times, slowly',
     independence: 'The drill you avoided most this unit',
-    tune: 'Record a full take. Listen twice before you decide anything about it.',
+    tune: 'Record a full take, then listen twice with the piano lid down. First pass, time only — is it steady. Second pass, tone only — is anything harsh or buried. Write down one thing to fix and decide nothing else.',
   },
 ]
 

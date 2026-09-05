@@ -153,6 +153,7 @@ everything worth testing here is pure.
 | `data/curriculum.test.ts` | All 100 generate; the arc repeats per unit; keys follow the cycle; minutes split exactly at every session length; **unit material never dictates execution** |
 | `data/theory.test.ts` | Slugs unique and url-safe, related links resolve, table rows match their headers, no empty content, every topic has a jargon-free opener, and worked rows actually explain themselves |
 | `data/fingerings.test.ts` | Every scale spells a real major scale with one letter per degree; no thumb on a black key mid-scale; no finger jumps except across a crossing |
+| `lib/timer-storage.test.ts` | A session round-trips through a refresh with its position intact; running clocks keep running and paused ones stay frozen; stale, future-dated and malformed blobs are refused |
 
 The execution-directive test is the interesting one. Unit material says *what*
 to play and the variant says *how*; a unit that bakes in "hands together"
@@ -250,6 +251,15 @@ while a session is being timed.
 grant notification permission from a background tick, so `prime()` is called
 from the click that starts the timer. If notifications are denied the chime
 still fires and the page says so.
+
+A session survives a refresh. `lib/timer-storage.ts` keeps it in `localStorage`
+and, because `runningSince` is a wall-clock timestamp, a timer that was running
+has genuinely kept running while the page reloaded — which is what you want
+after hitting refresh mid-block. A paused one stays exactly where it was, for
+however long. Anything older than twelve hours is dropped on the way in so
+yesterday's session doesn't reappear, and a blob saved in the future is dropped
+too, since that means the machine's clock moved. Restoring never chimes: the
+first tick syncs the announcement marker to wherever the session actually is.
 
 Elapsed time is one scalar derived from timestamps rather than an accumulating
 counter, so backgrounding the tab doesn't cause drift. Pausing banks the

@@ -12,6 +12,7 @@ import {
   totalOf,
   type ClockState,
 } from '../lib/session-clock'
+import { clearTimer, loadTimer, saveTimer } from '../lib/timer-storage'
 import { TimerContext, type TimerBlock, type TimerValue } from './timer-context'
 
 interface Plan {
@@ -23,13 +24,20 @@ const NO_BLOCKS: TimerBlock[] = []
 const STOPPED: ClockState = { banked: 0, runningSince: null }
 
 export function TimerProvider({ children }: { children: ReactNode }) {
-  const [plan, setPlan] = useState<Plan | null>(null)
-  const [clock, setClock] = useState<ClockState>(STOPPED)
+  // A session in progress survives a refresh; see lib/timer-storage.
+  const [plan, setPlan] = useState<Plan | null>(() => {
+    const saved = loadTimer()
+    return saved ? { regimen: saved.regimen, blocks: saved.blocks } : null
+  })
+  const [clock, setClock] = useState<ClockState>(() => loadTimer()?.clock ?? STOPPED)
   // The clock reading is state, not a Date.now() call during render.
   const [now, setNow] = useState(() => Date.now())
   const [permission, setPermission] = useState<Permission>('default')
   // Highest block index already announced, so each boundary fires once.
   const announced = useRef(0)
+  // A restored session may already be several blocks in. The first tick syncs
+  // the marker to wherever it actually is rather than chiming its way there.
+  const syncOnFirstTick = useRef(loadTimer() !== null)
 
   const blocks = plan?.blocks ?? NO_BLOCKS
   const totalMs = totalOf(blocks)
@@ -45,6 +53,11 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       const ahead = elapsedAt(clock, t)
       const total = totalOf(plan.blocks)
       const { index } = locate(plan.blocks, ahead)
+
+      if (syncOnFirstTick.current) {
+        syncOnFirstTick.current = false
+        announced.current = index
+      }
 
       if (index > announced.current) {
         announced.current = index
@@ -72,6 +85,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const start = useCallback((regimen: number, next: TimerBlock[], fromIndex = 0) => {
     void prime().then(setPermission)
+    syncOnFirstTick.current = false
     const t = Date.now()
     // Starting at a block is not arriving at it, so don't announce it.
     const target = Math.min(clampIndex(next, fromIndex), Math.max(0, next.length - 1))
@@ -118,9 +132,17 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const stop = useCallback(() => {
     announced.current = 0
+    syncOnFirstTick.current = false
     setPlan(null)
     setClock(STOPPED)
   }, [])
+
+  // Persist whenever the session or the clock moves. `now` is deliberately not
+  // a dependency: it ticks four times a second and changes nothing worth saving.
+  useEffect(() => {
+    if (plan === null) clearTimer()
+    else saveTimer({ regimen: plan.regimen, blocks: plan.blocks, clock })
+  }, [plan, clock])
 
   let status: TimerValue['status'] = 'idle'
   if (plan) {
