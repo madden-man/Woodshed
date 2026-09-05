@@ -4,6 +4,7 @@ import {
   getRegimen,
   minutesFor,
   BLOCK_PURPOSE,
+  MIN_BLOCK_MINUTES,
   SESSION_LENGTHS,
   TOTAL_REGIMENS,
   UNITS,
@@ -106,12 +107,62 @@ describe('every session', () => {
 })
 
 describe('session length', () => {
+  it('offers short sessions and caps at forty-five minutes', () => {
+    expect(Math.min(...SESSION_LENGTHS)).toBe(15)
+    expect(Math.max(...SESSION_LENGTHS)).toBe(45)
+    expect([...SESSION_LENGTHS]).toEqual([...SESSION_LENGTHS].sort((a, b) => a - b))
+  })
+
   it.each(SESSION_LENGTHS)('splits %i minutes across the blocks exactly', (total) => {
     for (const r of all) {
       const mins = minutesFor(r.blocks, total)
       expect(mins).toHaveLength(5)
       expect(mins.reduce((a, b) => a + b, 0)).toBe(total)
-      for (const m of mins) expect(m).toBeGreaterThan(0)
+    }
+  })
+
+  it.each(SESSION_LENGTHS)('gives every block something usable at %i minutes', (total) => {
+    for (const r of all) {
+      for (const m of minutesFor(r.blocks, total)) {
+        expect(m).toBeGreaterThanOrEqual(MIN_BLOCK_MINUTES)
+      }
+    }
+  })
+
+  /**
+   * The bug this guards: the old allocator dumped the rounding remainder on the
+   * last block, which at fifteen minutes left the tune — the heaviest block —
+   * as the shortest of the five.
+   */
+  it.each(SESSION_LENGTHS)('keeps the block order matching the weights at %i minutes', (total) => {
+    const r = getRegimen(1)
+    const mins = minutesFor(r.blocks, total)
+    const heaviest = r.blocks.reduce((a, b, i) => (b.weight > r.blocks[a].weight ? i : a), 0)
+    const lightest = r.blocks.reduce((a, b, i) => (b.weight < r.blocks[a].weight ? i : a), 0)
+    expect(mins[heaviest], 'the tune should never be the shortest block').toBe(Math.max(...mins))
+    expect(mins[lightest], 'the warm-up should never be the longest block').toBe(Math.min(...mins))
+  })
+
+  it('stays close to each block’s share of the time', () => {
+    const r = getRegimen(1)
+    for (const total of SESSION_LENGTHS) {
+      const mins = minutesFor(r.blocks, total)
+      r.blocks.forEach((b, i) => {
+        // A minute either side of fair, plus whatever the minimum forces.
+        const ideal = total * b.weight
+        expect(Math.abs(mins[i] - ideal), `${b.id} at ${total}min`).toBeLessThanOrEqual(
+          Math.max(1.5, MIN_BLOCK_MINUTES - ideal + 1),
+        )
+      })
+    }
+  })
+
+  it('handles a length nobody offers without breaking its own rules', () => {
+    const r = getRegimen(1)
+    for (const total of [10, 12, 25, 37, 60, 90]) {
+      const mins = minutesFor(r.blocks, total)
+      expect(mins.reduce((a, b) => a + b, 0), `${total} min`).toBe(total)
+      for (const m of mins) expect(m, `${total} min`).toBeGreaterThanOrEqual(MIN_BLOCK_MINUTES)
     }
   })
 

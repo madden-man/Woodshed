@@ -515,12 +515,50 @@ export function allRegimens(): Regimen[] {
   return Array.from({ length: TOTAL_REGIMENS }, (_, i) => getRegimen(i + 1))
 }
 
-/** Split a session length across the blocks so the minutes add up exactly. */
+/** No block is worth less than this; below it there is no time to do anything. */
+export const MIN_BLOCK_MINUTES = 2
+
+/**
+ * Split a session length across the blocks so the minutes add up exactly.
+ *
+ * Largest-remainder rather than round-and-dump-the-difference-on-the-last-one:
+ * at fifteen minutes the naive version handed the tune two minutes and made it
+ * the shortest block of the session, which is backwards. Here every block gets
+ * its floor, the leftover minutes go to whichever blocks were rounded down
+ * hardest, and anything under the minimum is topped up from whichever block is
+ * currently furthest above its fair share.
+ */
 export function minutesFor(blocks: RegimenBlock[], total: number): number[] {
-  const mins = blocks.map((b) => Math.max(3, Math.round(total * b.weight)))
-  const sum = mins.reduce((a, b) => a + b, 0)
-  mins[mins.length - 1] += total - sum
+  const ideal = blocks.map((b) => total * b.weight)
+  const mins = ideal.map((n) => Math.floor(n))
+
+  // Hand out the rounding remainder, biggest fractional part first.
+  let left = total - mins.reduce((a, b) => a + b, 0)
+  const byFraction = ideal
+    .map((n, i) => ({ i, frac: n - Math.floor(n) }))
+    .sort((a, b) => b.frac - a.frac)
+  for (let k = 0; left > 0; k++, left--) mins[byFraction[k % mins.length].i]++
+
+  // Top up anything too short, taking from whoever is furthest above their share.
+  for (let i = 0; i < mins.length; i++) {
+    while (mins[i] < MIN_BLOCK_MINUTES) {
+      let donor = -1
+      let best = -Infinity
+      for (let j = 0; j < mins.length; j++) {
+        if (j === i || mins[j] <= MIN_BLOCK_MINUTES) continue
+        const surplus = mins[j] - ideal[j]
+        if (surplus > best) {
+          best = surplus
+          donor = j
+        }
+      }
+      if (donor === -1) break
+      mins[donor]--
+      mins[i]++
+    }
+  }
+
   return mins
 }
 
-export const SESSION_LENGTHS = [30, 45, 60, 90] as const
+export const SESSION_LENGTHS = [15, 20, 30, 45] as const

@@ -80,6 +80,14 @@ links to the wiki topics it builds on.
 To change the content, edit `UNITS` or `VARIANTS` in `src/data/curriculum.ts`
 — the hundred are generated from them, so the sequence stays consistent.
 
+`minutesFor` uses largest-remainder rather than rounding each block and dumping
+the difference on the last one. At fifteen minutes the naive version handed the
+tune two minutes and made the heaviest block the shortest of the five; the
+current one gives every block a floor of two, hands the leftover minutes to
+whichever blocks were rounded down hardest, and tops up anything too short from
+whoever is furthest above their fair share. Tests hold it to all of that,
+including at lengths the picker does not offer.
+
 **One rule when editing units:** unit material names *what* to play, never
 *how*. Hands together or apart, with or without a metronome, at what tempo —
 all of that belongs to the variant, which changes day to day. A unit that says
@@ -227,8 +235,9 @@ loads every session's progress once and applies toggles optimistically.
 
 ## The session timer
 
-Each block gets the minutes the length picker gives it (30/45/60/90 split
-across the five weights). At every hand-off the timer chimes and raises a
+Each block gets the minutes the length picker gives it — 15, 20, 30 or 45,
+split across the five weights, with fifteen as the default. A short session
+done properly beats an hour half-attended, and forty-five is the ceiling. At every hand-off the timer chimes and raises a
 system notification naming the next block.
 
 You do not have to start at the beginning. Every block on a session page has a

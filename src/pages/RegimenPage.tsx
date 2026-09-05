@@ -13,7 +13,8 @@ export default function RegimenPage() {
   const params = useParams<{ number?: string }>()
   const { completedBlocks, toggle, current, state, error } = useProgress()
   const timer = useTimer()
-  const [length, setLength] = useState<number>(60)
+  // Short by default: fifteen minutes done properly beats an hour half-attended.
+  const [length, setLength] = useState<number>(SESSION_LENGTHS[0])
 
   // No number in the URL means "wherever I left off".
   const number = params.number ? Number(params.number) : current
