@@ -8,6 +8,7 @@ A jazz piano theory wiki and daily practice regimen, built around the cycle of f
 npm install
 npm start        # netlify dev — Vite + functions + Mongo (http://localhost:8888)
 npm run dev      # Vite only, no database (http://localhost:5173)
+npm test         # vitest
 npm run build    # typecheck + production build
 npm run lint
 ```
@@ -96,6 +97,23 @@ routing all read from that array, so nothing else needs touching.
 Content is composed of `Block`s — `prose`, `list`, `progression`, `table` and
 `callout`. To add a new kind, extend the union in `data/types.ts` and add a case
 to `components/Blocks.tsx`; TypeScript will point at the switch if you forget.
+
+## Tests
+
+`npm test` (vitest, `src/**/*.test.ts`). Four files, no DOM and no mocks —
+everything worth testing here is pure.
+
+| File | Guards |
+| --- | --- |
+| `lib/session-clock.test.ts` | Pause continues rather than restarts; repeated cycles neither lose nor double time; skip preserves paused-ness and clamps at the end |
+| `data/keys.test.ts` | The harmony itself — ii/V/I roots, minor ii–V–i roots, chord qualities, and that all 48 upper-structure triads really are ♭II/VI/♭VI/II above their dominant |
+| `data/curriculum.test.ts` | All 100 generate; the arc repeats per unit; keys follow the cycle; minutes split exactly at every session length; **unit material never dictates execution** |
+| `data/theory.test.ts` | Slugs unique and url-safe, related links resolve, table rows match their headers, no empty content |
+
+The execution-directive test is the interesting one. Unit material says *what*
+to play and the variant says *how*; a unit that bakes in "hands together"
+contradicts the Introduce step, which says hands apart. That shipped once and
+the test exists so it can't again.
 
 ## Database
 
