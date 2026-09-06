@@ -6,6 +6,10 @@ import { ProgressProvider } from './hooks/ProgressProvider'
 import { TimerProvider } from './hooks/TimerProvider'
 import './index.css'
 
+// We put you at the top of each page ourselves (see useScrollToTop), so stop
+// the browser from restoring the old offset on back/forward and undoing that.
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ProgressProvider>

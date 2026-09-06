@@ -4,10 +4,12 @@ import { CATEGORIES } from '../data/types'
 import { TOPICS } from '../data/theory'
 import { TOTAL_REGIMENS } from '../data/curriculum'
 import { useProgress } from '../hooks/progress-context'
+import { useScrollToTop } from '../hooks/scroll-to-top'
 import SessionBar from './SessionBar'
 
 export default function Layout() {
   const { current, finishedCount } = useProgress()
+  useScrollToTop()
   // Narrow screens fold the wiki index behind this; the toggle is display:none
   // on the desktop grid, where the sidebar is always shown.
   const [navOpen, setNavOpen] = useState(false)
