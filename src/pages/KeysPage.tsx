@@ -35,13 +35,13 @@ export default function KeysPage() {
               return (
                 <tr key={k} className={k === activeKey ? 'is-today' : undefined}>
                   <td className="lead-cell key-cell">{k}</td>
-                  <td className="mono">
+                  <td className="mono" data-label="Major ii–V–I">
                     {info.ii} · {info.V} · {info.I}
                   </td>
-                  <td className="mono">
+                  <td className="mono" data-label="Minor ii–V–i">
                     {info.halfDim} · {info.altered} · {info.minorI}
                   </td>
-                  <td className="mono us-cell">
+                  <td className="mono us-cell" data-label="Upper structures over the V">
                     {info.upperStructures.map((tri, i) => (
                       <span key={tri} className="us-chip">
                         <em>{UPPER_STRUCTURE_FUNCTIONS[i].degree}</em>

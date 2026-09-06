@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { CATEGORIES } from '../data/types'
 import { TOPICS } from '../data/theory'
@@ -7,6 +8,9 @@ import SessionBar from './SessionBar'
 
 export default function Layout() {
   const { current, finishedCount } = useProgress()
+  // Narrow screens fold the wiki index behind this; the toggle is display:none
+  // on the desktop grid, where the sidebar is always shown.
+  const [navOpen, setNavOpen] = useState(false)
 
   return (
     <div className="shell">
@@ -30,7 +34,28 @@ export default function Layout() {
       <SessionBar />
 
       <div className="body">
-        <aside className="sidebar">
+        <button
+          type="button"
+          className="nav-toggle"
+          aria-expanded={navOpen}
+          aria-controls="wiki-nav"
+          onClick={() => setNavOpen((open) => !open)}
+        >
+          <span>Wiki topics</span>
+          <span className="nav-toggle-mark" aria-hidden="true">
+            {navOpen ? 'Close' : `${TOPICS.length} pages`}
+          </span>
+        </button>
+
+        <aside
+          id="wiki-nav"
+          className={navOpen ? 'sidebar is-open' : 'sidebar'}
+          // Following a link closes the drawer, so you land on the page rather
+          // than on the list you just left.
+          onClick={(e) => {
+            if ((e.target as HTMLElement).closest('a')) setNavOpen(false)
+          }}
+        >
           {CATEGORIES.map((cat) => {
             const topics = TOPICS.filter((t) => t.category === cat)
             if (topics.length === 0) return null
