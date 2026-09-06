@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatClock } from '../lib/notify'
 import { getRegimen, type DrillSpec } from '../data/curriculum'
@@ -14,13 +14,15 @@ import Drill from './Drill'
  */
 export default function SessionBar() {
   const timer = useTimer()
+  const showing = timer.status !== 'idle' && timer.regimen !== null
+  const barRef = useBarHeight(showing)
   if (timer.status === 'idle' || timer.regimen === null) return null
 
   const regimen = getRegimen(timer.regimen)
 
   if (timer.status === 'done') {
     return (
-      <div className="session-bar is-done">
+      <div className="session-bar is-done" ref={barRef}>
         <div className="bar-block">
           <span className="bar-step">Complete</span>
           <span className="bar-title">All five blocks timed out</span>
@@ -44,7 +46,7 @@ export default function SessionBar() {
   const pct = block ? (timer.intoBlockMs / block.ms) * 100 : 0
 
   return (
-    <div className={paused ? 'session-bar is-paused' : 'session-bar'}>
+    <div className={paused ? 'session-bar is-paused' : 'session-bar'} ref={barRef}>
       <div className="bar-head">
         <div className="bar-block">
           <span className="bar-step">
@@ -131,6 +133,34 @@ export default function SessionBar() {
       )}
     </div>
   )
+}
+
+/**
+ * Publishes the bar's height as --session-bar-h. The sidebar is sticky too,
+ * and without knowing how much room this takes it would pin itself underneath
+ * the bar rather than below it. Height changes with the block and with the
+ * detail panel, so it is measured rather than guessed.
+ */
+function useBarHeight(showing: boolean) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const el = ref.current
+    const root = document.documentElement
+    if (!el) return
+
+    const measure = () => root.style.setProperty('--session-bar-h', `${el.getBoundingClientRect().height}px`)
+    // Once up front so the first paint is already right, then on every change.
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => {
+      observer.disconnect()
+      root.style.removeProperty('--session-bar-h')
+    }
+  }, [showing])
+
+  return ref
 }
 
 interface DetailProps {

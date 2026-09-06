@@ -25,6 +25,10 @@
   --f-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   --sidebar-w: 232px;
+  /* What the masthead occupies while it is sticky — the offset every other
+     sticky element sits below. Mobile drops it to zero. */
+  --masthead-h: 79px;
+  --gutter: 32px;
   color-scheme: light dark;
 }
 
@@ -66,8 +70,13 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
+  overflow-wrap: break-word;
   background: var(--ground);
   color: var(--ink);
   font-family: var(--f-body);
@@ -123,7 +132,7 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 18px 32px;
+  padding: 18px var(--gutter);
   border-bottom: 2px solid var(--ink);
   background: var(--ground);
   position: sticky;
@@ -189,10 +198,19 @@ a {
 
 .sidebar {
   position: sticky;
-  top: 82px;
-  padding: 30px 20px 60px 32px;
+  /* --session-bar-h is set by <SessionBar /> while a session runs; without it
+     the index would pin itself behind the bar instead of below it. */
+  top: calc(var(--masthead-h) + var(--session-bar-h, 0px) + 3px);
+  padding: 30px 20px 60px var(--gutter);
   border-right: 1px solid var(--rule);
-  min-height: calc(100vh - 82px);
+  /* The index runs longer than the viewport, so it scrolls on its own
+     rather than making you scroll the article to reach the bottom of it. */
+  height: calc(100vh - var(--masthead-h) - var(--session-bar-h, 0px));
+  height: calc(100dvh - var(--masthead-h) - var(--session-bar-h, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-2) transparent;
 }
 
 .nav-group + .nav-group {
@@ -241,6 +259,7 @@ a {
 .content {
   padding: 40px 40px 100px;
   max-width: 780px;
+  min-width: 0;
 }
 
 /* ---------------- page furniture ---------------- */
@@ -789,10 +808,11 @@ td.lead-cell {
 
   .sidebar {
     position: static;
-    min-height: 0;
+    height: auto;
+    overflow-y: visible;
     border-right: 0;
     border-bottom: 1px solid var(--rule);
-    padding: 22px 24px;
+    padding: 22px var(--gutter);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 20px;
@@ -803,11 +823,10 @@ td.lead-cell {
   }
 
   .content {
-    padding: 28px 24px 80px;
+    padding: 28px var(--gutter) 80px;
   }
 
   .masthead {
-    padding: 14px 24px;
     flex-wrap: wrap;
   }
 
@@ -1201,13 +1220,14 @@ td.lead-cell {
 
 .session-bar {
   position: sticky;
-  top: 79px;
+  top: var(--masthead-h);
   z-index: 9;
-  padding: 12px 32px;
+  padding: 12px var(--gutter);
   background: var(--moss-soft);
   border-bottom: 1px solid var(--moss);
   box-shadow: 0 6px 16px -14px rgba(0, 0, 0, 0.5);
-  max-height: calc(100vh - 79px);
+  max-height: calc(100vh - var(--masthead-h));
+  max-height: calc(100dvh - var(--masthead-h));
   overflow-y: auto;
 }
 
@@ -1424,7 +1444,7 @@ td.lead-cell {
 
 @media (max-width: 980px) {
   .session-bar {
-    padding: 12px 24px;
+    padding: 12px var(--gutter);
   }
 
   .bar-head {
@@ -2423,4 +2443,536 @@ td.lead-cell {
   color: var(--felt);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------
+   Mobile
+   Two steps down from the desktop grid. Below 860px the shell stops
+   being two columns and the wiki index folds behind a disclosure —
+   it is sixty links, and burying every page under them is no way to
+   read on a phone. Below 560px the type, gutters and hit targets
+   come down to thumb scale.
+   --------------------------------------------------------------- */
+
+/* The mobile affordance for the wiki index. Hidden on the desktop
+   grid, where the sidebar stands on its own. */
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  padding: 14px var(--gutter);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: var(--ground);
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+}
+
+.nav-toggle[aria-expanded='true'] {
+  color: var(--felt);
+}
+
+.nav-toggle-mark {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.nav-toggle[aria-expanded='true'] .nav-toggle-mark {
+  color: var(--felt);
+}
+
+@media (max-width: 860px) {
+  :root {
+    --gutter: 24px;
+    /* The masthead scrolls away here, so nothing sits below it. */
+    --masthead-h: 0px;
+  }
+
+  /* One sticky thing is enough on a small screen, and while a session
+     is running it should be the clock, not the brand. */
+  .masthead {
+    position: static;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .sidebar.is-open {
+    display: grid;
+  }
+
+  /* Leave the page under it reachable — the bar carries the whole
+     block, which on a phone is taller than the screen. */
+  .session-bar {
+    max-height: 62vh;
+    max-height: 62dvh;
+  }
+
+  .session-bar.is-done .bar-spacer {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --gutter: 16px;
+  }
+
+  /* Respect the notch and the rounded corners without moving the
+     gutter on anything that has no inset. */
+  .masthead,
+  .nav-toggle,
+  .sidebar,
+  .session-bar,
+  .content {
+    padding-left: max(var(--gutter), env(safe-area-inset-left));
+    padding-right: max(var(--gutter), env(safe-area-inset-right));
+  }
+
+  .masthead {
+    flex-direction: column;
+    /* Wrapping is what the wider layout does; as a column it would put the
+       nav on its own flex line and let it size to its content. */
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 9px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  /* Stretched, the brand link would make the whole row a tap on "home". */
+  .brand {
+    align-self: flex-start;
+  }
+
+  .brand-eyebrow {
+    font-size: 9px;
+  }
+
+  .brand-name {
+    font-size: 22px;
+  }
+
+  /* Five items will not fit across a phone, and wrapping them costs a
+     whole row — so scroll them instead. */
+  .top-nav {
+    gap: 20px;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .top-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .top-nav a,
+  .top-nav .key-chip {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .top-nav a {
+    padding-bottom: 4px;
+  }
+
+  .content {
+    padding-top: 22px;
+    padding-bottom: 90px;
+  }
+
+  .sidebar {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding-top: 16px;
+    padding-bottom: 20px;
+  }
+
+  .sidebar a {
+    font-size: 15px;
+    padding: 9px 0 9px 11px;
+  }
+
+  .page-head h1 {
+    font-size: 27px;
+  }
+
+  .lede {
+    font-size: 16px;
+  }
+
+  .section-head {
+    margin-top: 34px;
+  }
+
+  /* 16px is the threshold below which iOS zooms the page on focus. */
+  .search,
+  .ask-form textarea {
+    font-size: 16px;
+  }
+
+  .btn,
+  .button {
+    min-height: 40px;
+  }
+
+  /* ---- home ---- */
+
+  .up-next {
+    padding: 16px 18px;
+  }
+
+  .up-next-title {
+    font-size: 20px;
+  }
+
+  .up-next-key {
+    font-size: 32px;
+  }
+
+  .home-progress {
+    flex-wrap: wrap;
+    gap: 10px 14px;
+  }
+
+  .home-progress-link {
+    white-space: normal;
+  }
+
+  .topic-title {
+    font-size: 17px;
+  }
+
+  /* ---- reading ---- */
+
+  .prose {
+    font-size: 16px;
+  }
+
+  .progression,
+  .worked,
+  .keyboard-figure,
+  .rhythm,
+  .changes,
+  .plainly,
+  .drill-card {
+    padding: 13px 14px;
+  }
+
+  .callout {
+    padding: 13px 15px;
+  }
+
+  .related-links a {
+    padding: 8px 12px;
+  }
+
+  /* Shrinking a keyboard to fit takes the labels below legible; let it
+     keep its size and scroll inside its own box instead. */
+  .keyboard-scroll .keyboard {
+    max-width: none;
+  }
+
+  /* Tables sized to their content scroll; tables sized to the viewport
+     just squeeze their columns to nothing. */
+  .table-scroll table:not(.keys-table) {
+    width: auto;
+    min-width: 100%;
+  }
+
+  /* ---- the twelve keys, as cards ---- */
+
+  .keys-table,
+  .keys-table tbody,
+  .keys-table tr,
+  .keys-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .keys-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .keys-table tr {
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--rule-2);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .keys-table tr.is-today {
+    background: var(--felt-soft);
+    border-left-color: var(--felt);
+  }
+
+  .keys-table tr.is-today td {
+    background: transparent;
+  }
+
+  .keys-table td {
+    border: 0;
+    padding: 0 0 9px;
+  }
+
+  .keys-table tr td:last-child {
+    padding-bottom: 0;
+  }
+
+  .keys-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--f-mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+
+  .keys-table td.key-cell {
+    font-size: 26px;
+    color: var(--felt);
+    padding-bottom: 10px;
+  }
+
+  .keys-table td.key-cell::before {
+    content: none;
+  }
+
+  .keys-table .us-cell {
+    display: block;
+  }
+
+  .keys-table .us-cell .us-chip {
+    margin: 0 6px 6px 0;
+  }
+
+  /* ---- the curriculum ladder ---- */
+
+  .ladder-summary {
+    flex-wrap: wrap;
+    gap: 14px 18px;
+    padding: 16px;
+  }
+
+  .ladder-summary .summary-bar {
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .ladder-summary .button {
+    margin-left: auto;
+  }
+
+  .unit-head {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .unit-head h2 {
+    font-size: 21px;
+  }
+
+  .rung a {
+    min-height: 46px;
+    padding: 10px 8px 10px 10px;
+    grid-template-columns: 26px minmax(0, 1fr) auto auto;
+    gap: 10px;
+  }
+
+  /* ---- one session ---- */
+
+  .regimen-meta {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+
+  .regimen-strip {
+    padding: 14px 16px;
+  }
+
+  .timer-idle {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .length-picker {
+    flex-wrap: wrap;
+  }
+
+  .length-picker button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 12px 6px;
+    white-space: nowrap;
+  }
+
+  .picker-count {
+    flex-basis: 100%;
+    margin-left: 0;
+    margin-top: 9px;
+  }
+
+  /* The three-column block leaves the body about a hundred pixels wide
+     on a phone. Put the gutter on its own line and give the body all of
+     the width. */
+  .block {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'gutter check'
+      'body   body';
+    gap: 10px 12px;
+    padding: 18px 0;
+  }
+
+  .block-gutter {
+    grid-area: gutter;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    text-align: left;
+  }
+
+  .block-body {
+    grid-area: body;
+  }
+
+  .block > .check {
+    grid-area: check;
+    width: 34px;
+    height: 34px;
+    margin-top: 0;
+    font-size: 18px;
+  }
+
+  .block-min {
+    font-size: 19px;
+  }
+
+  .block-min em {
+    display: inline;
+    margin-left: 5px;
+  }
+
+  .block-start,
+  .block-here {
+    margin-top: 0;
+    padding: 6px 10px;
+  }
+
+  .block.is-active {
+    padding-left: 10px;
+  }
+
+  .regimen-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .regimen-nav .nav-next {
+    text-align: right;
+  }
+
+  /* ---- the sticky session bar ---- */
+
+  .session-bar {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .bar-head {
+    gap: 8px 12px;
+  }
+
+  .bar-title {
+    font-size: 15.5px;
+  }
+
+  .bar-clock {
+    font-size: 26px;
+  }
+
+  /* Chunkier segments so a block is something you can actually hit. */
+  .bar-seg {
+    height: 14px;
+  }
+
+  .bar-meta {
+    flex-wrap: wrap;
+    gap: 1px 14px;
+    font-size: 9.5px;
+  }
+
+  .bar-controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .bar-controls .btn {
+    width: 100%;
+    padding: 12px 4px;
+  }
+
+  .session-bar.is-done {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'block'
+      'controls';
+  }
+
+  .session-bar.is-done .bar-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* ---- ask ---- */
+
+  .ask-context {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+
+  .chat-turn {
+    padding: 12px 14px;
+  }
+
+  .chat-turn.is-user {
+    align-self: stretch;
+  }
+
+  .chat-starters button {
+    font-size: 15px;
+    padding: 11px 12px;
+  }
+
+  .ask-form {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .ask-actions {
+    flex-wrap: wrap;
+  }
 }
