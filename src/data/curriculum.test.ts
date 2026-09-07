@@ -336,10 +336,9 @@ describe('variants', () => {
   })
 
   /**
-   * The metronome joins at step 4 of the arc and stays. Making that a boolean on
-   * the variant is what lets the UI show the tool exactly when the method allows
-   * it — a metronome on the Introduce step would be an invitation to break the
-   * method.
+   * The metronome joins at step 4 of the arc and stays. The tool itself is
+   * always on screen; this flag drives the "no click on this step" note shown
+   * beside it on the three silent steps, so the values are still the method.
    */
   it('give a metronome from First tempo pass onward, and not before', () => {
     const silent = ['Introduce', 'Hands together', 'Rearrange']
@@ -354,7 +353,7 @@ describe('the metronome flag', () => {
   /**
    * `metronome` lives on the variant, never the unit — the same guard as the
    * execution-directive test, from the other side. If a unit's targetBpm ever
-   * started deciding visibility, a unit would be dictating *how*.
+   * started driving the click advice, a unit would be dictating *how*.
    */
   it('is a property of the variant, not the unit', () => {
     for (const unit of UNITS) {

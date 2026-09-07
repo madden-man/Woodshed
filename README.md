@@ -41,7 +41,7 @@ src/
   lib/
     notify.ts             Chime + metronome click + note tone (Web Audio) + system notifications
     session-clock.ts      Pure clock arithmetic — pause/resume/skip/locate
-    metronome.ts          Pure tick scheduling — bpm, beats, backbeat vs all
+    metronome.ts          Pure tick scheduling — bpm, beats, backbeat / all / bar
     metronome-audio.ts    Lookahead scheduler over the shared AudioContext
     metronome-storage.ts  Remembers a bpm per (regimen, block)
     sound.ts              Pitch-to-frequency, playNotes, progression + rhythm playback
@@ -173,8 +173,10 @@ exists. Keyboard and rhythm diagrams are playable: a play button synthesises
 the pitches `ascend()` already resolves (keyboard blocks, and one control for a
 progression drawn over a shared `span`), and a rhythm grid loops its own pattern
 on the metronome engine. `progression` blocks stay silent — they carry no
-voicing. A metronome appears on the scales, voicings and independence blocks
-when the step's `Variant.metronome` is true, which is First-tempo-pass onward;
+voicing. A metronome sits on every block of every
+session — there is always a way to run a click. `Variant.metronome` (true from
+First tempo pass onward) marks the steps the method practises with one; on the
+silent steps the tool stays and carries a "no click on this step" note instead.
 `Unit.targetBpm` mirrors the number the target already states and is shown as
 the standard, never as the day's setting.
 

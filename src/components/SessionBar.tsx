@@ -10,8 +10,6 @@ import Metronome from './Metronome'
 import ListenThenRead from './ListenThenRead'
 import { getTopic } from '../data/theory'
 
-/** The blocks the method gives a metronome to, when the step allows one. */
-const METRONOME_BLOCKS = new Set(['scales', 'voicings', 'independence'])
 
 /**
  * Sticky under the masthead for the whole session, on every page. Carries the
@@ -135,7 +133,7 @@ export default function SessionBar() {
           unitId={regimen.unit.id}
           blockId={detail.id}
           scaleKey={regimen.key}
-          metronome={regimen.variant.metronome && METRONOME_BLOCKS.has(detail.id)}
+          stepUsesClick={regimen.variant.metronome}
           targetBpm={regimen.unit.targetBpm}
           tuneWiki={detail.id === 'tune' ? regimen.unit.tuneWiki : undefined}
         />
@@ -182,8 +180,8 @@ interface DetailProps {
   unitId: number
   blockId: string
   scaleKey: KeyName
-  /** Whether this step and block get a metronome. */
-  metronome: boolean
+  /** Whether this step of the arc practises with a click; shown on the metronome. */
+  stepUsesClick: boolean
   targetBpm?: number
   /** The tune's slug on the tune block, so listening links can surface here. */
   tuneWiki?: string
@@ -199,7 +197,7 @@ function BlockDetail({
   unitId,
   blockId,
   scaleKey,
-  metronome,
+  stepUsesClick,
   targetBpm,
   tuneWiki,
 }: DetailProps) {
@@ -230,9 +228,13 @@ function BlockDetail({
             </ul>
             {drill && <Drill drill={drill} variant="bar" />}
             {tune && <ListenThenRead topic={tune} variant="bar" />}
-            {metronome && (
-              <Metronome regimen={regimen} blockId={blockId} targetBpm={targetBpm} variant="bar" />
-            )}
+            <Metronome
+              regimen={regimen}
+              blockId={blockId}
+              targetBpm={targetBpm}
+              stepUsesClick={stepUsesClick}
+              variant="bar"
+            />
             <Fingering unitId={unitId} blockId={blockId} scaleKey={scaleKey} variant="bar" />
           </div>
           <p className="bar-target">

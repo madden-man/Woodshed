@@ -10,11 +10,17 @@
  * a few times a second and schedules whatever comes back on the audio clock.
  *
  * Modes:
- * - 'all'      every beat clicks; 2 and 4 are accented (the backbeat still reads).
+ * - 'all'      every beat clicks.
  * - 'backbeat' only 2 and 4 click, the jazz default the method names.
+ * - 'bar'      only beat 1 clicks — one click a bar, for holding a form at tempo.
+ *
+ * The accent (a higher click) lives on beat 1 and nowhere else, so the tone
+ * changes once a bar rather than every other beat. In 'backbeat' mode beat 1
+ * never sounds, so every click is the plain tone; in 'bar' mode the one click
+ * is the accent.
  */
 
-export type ClickMode = 'all' | 'backbeat'
+export type ClickMode = 'all' | 'backbeat' | 'bar'
 
 export interface MetronomeSpec {
   bpm: number
@@ -35,14 +41,15 @@ export function beatDuration(bpm: number): number {
   return 60 / bpm
 }
 
-/** 2 and 4 carry the accent — the backbeat, whichever mode is playing. */
+/** Beat 1 carries the accent, so the tone changes once a bar, not every other beat. */
 export function isAccent(beat: number): boolean {
-  return beat === 2 || beat === 4
+  return beat === 1
 }
 
 /** Whether a beat clicks at all in this mode. */
 export function beatClicks(beat: number, mode: ClickMode): boolean {
-  if (mode === 'backbeat') return isAccent(beat)
+  if (mode === 'backbeat') return beat === 2 || beat === 4
+  if (mode === 'bar') return beat === 1
   return true
 }
 

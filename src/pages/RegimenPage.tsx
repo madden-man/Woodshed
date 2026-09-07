@@ -12,7 +12,6 @@ import Metronome from '../components/Metronome'
 import ListenThenRead from '../components/ListenThenRead'
 
 /** The blocks the method gives a metronome to, when the step allows one. */
-const METRONOME_BLOCKS = new Set(['scales', 'voicings', 'independence'])
 
 export default function RegimenPage() {
   const params = useParams<{ number?: string }>()
@@ -132,14 +131,13 @@ export default function RegimenPage() {
                   ))}
                 </ul>
                 {block.drill && <Drill drill={block.drill} />}
-                {regimen.variant.metronome && METRONOME_BLOCKS.has(block.id) && (
-                  <Metronome
-                    key={`${number}-${block.id}`}
-                    regimen={number}
-                    blockId={block.id}
-                    targetBpm={regimen.unit.targetBpm}
-                  />
-                )}
+                <Metronome
+                  key={`${number}-${block.id}`}
+                  regimen={number}
+                  blockId={block.id}
+                  targetBpm={regimen.unit.targetBpm}
+                  stepUsesClick={regimen.variant.metronome}
+                />
                 {block.id === 'tune' && (() => {
                   const tune = getTopic(regimen.unit.tuneWiki)
                   return tune ? <ListenThenRead topic={tune} /> : null

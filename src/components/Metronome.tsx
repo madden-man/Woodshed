@@ -6,8 +6,9 @@ import { prime } from '../lib/notify'
 
 /**
  * The metronome control: a play/stop toggle, a tempo, and the click mode. It
- * appears only where a step of the arc practises with a click — the method
- * gives no metronome before First tempo pass, so neither does the app.
+ * is on every block of every session — there is always a way to run a click.
+ * Where the method practises a step without one (before First tempo pass),
+ * that is shown as a note beside the tool rather than by hiding it.
  *
  * The tempo it opens with is the last one used for this block of this regimen
  * (localStorage), falling back to the unit's target minus a margin, then to 80.
@@ -18,12 +19,15 @@ export default function Metronome({
   regimen,
   blockId,
   targetBpm,
+  stepUsesClick = true,
   variant = 'page',
 }: {
   regimen: number
   blockId: string
   /** The unit's standard, shown as context — never as today's setting. */
   targetBpm?: number
+  /** False where the step of the arc practises without a click; advisory only. */
+  stepUsesClick?: boolean
   variant?: 'page' | 'bar'
 }) {
   const engine = useRef<Engine | null>(null)
@@ -116,11 +120,20 @@ export default function Metronome({
         <button type="button" aria-pressed={mode === 'all'} onClick={() => pickMode('all')}>
           All
         </button>
+        <button type="button" aria-pressed={mode === 'bar'} onClick={() => pickMode('bar')}>
+          1 only
+        </button>
       </div>
 
       {targetBpm !== undefined && (
         <span className="metronome-target">
           target <span className="mono">♩={targetBpm}</span>
+        </span>
+      )}
+
+      {!stepUsesClick && (
+        <span className="metronome-target" title="The metronome joins the arc at First tempo pass; before that the method works without one.">
+          the method says no click on this step
         </span>
       )}
     </div>

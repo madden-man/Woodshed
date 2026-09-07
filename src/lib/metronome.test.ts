@@ -13,6 +13,7 @@ import {
 
 const allFour: MetronomeSpec = { bpm: 120, beatsPerBar: 4, mode: 'all' }
 const backbeat: MetronomeSpec = { bpm: 120, beatsPerBar: 4, mode: 'backbeat' }
+const barOnly: MetronomeSpec = { bpm: 120, beatsPerBar: 4, mode: 'bar' }
 
 describe('beat duration', () => {
   it('is one second at 60 bpm and half at 120', () => {
@@ -32,22 +33,30 @@ describe('a bar of ticks', () => {
     expect(ticks.map((t) => t.beat)).toEqual([2, 4])
   })
 
-  it('accents 2 and 4 in both modes', () => {
-    for (const t of ticksInBar(allFour)) expect(t.accent).toBe(t.beat === 2 || t.beat === 4)
-    for (const t of ticksInBar(backbeat)) expect(t.accent).toBe(true)
+  it('clicks only beat 1 in bar mode', () => {
+    const ticks = ticksInBar(barOnly)
+    expect(ticks.map((t) => t.beat)).toEqual([1])
+  })
+
+  it('accents beat 1 and nothing else, so the tone changes once a bar', () => {
+    for (const t of ticksInBar(allFour)) expect(t.accent).toBe(t.beat === 1)
+    // Backbeat never sounds beat 1, so every click is the plain tone.
+    for (const t of ticksInBar(backbeat)) expect(t.accent).toBe(false)
+    // Bar mode's one click is the accent.
+    for (const t of ticksInBar(barOnly)) expect(t.accent).toBe(true)
   })
 
   it('places the ticks at the beat times', () => {
     // 120 bpm: half a second a beat.
     expect(ticksInBar(allFour).map((t) => t.time)).toEqual([0, 0.5, 1, 1.5])
     expect(ticksInBar(backbeat).map((t) => t.time)).toEqual([0.5, 1.5])
+    expect(ticksInBar(barOnly).map((t) => t.time)).toEqual([0])
   })
 
   it('respects a three-four bar', () => {
     const waltz: MetronomeSpec = { bpm: 90, beatsPerBar: 3, mode: 'all' }
     expect(ticksInBar(waltz).map((t) => t.beat)).toEqual([1, 2, 3])
-    // Only 2 accents; there is no 4 in a bar of 3.
-    expect(ticksInBar(waltz).filter((t) => t.accent).map((t) => t.beat)).toEqual([2])
+    expect(ticksInBar(waltz).filter((t) => t.accent).map((t) => t.beat)).toEqual([1])
   })
 })
 
@@ -100,21 +109,23 @@ describe('windowed queries', () => {
   })
 
   it('keeps the tick count honest across a long run', () => {
-    // Ten bars in "all" mode is forty ticks; in backbeat, twenty.
+    // Ten bars: forty ticks in "all" mode, twenty in backbeat, ten in bar mode.
     const tenBars = 40 * step
     expect(ticksIn(allFour, 0, tenBars)).toHaveLength(40)
     expect(ticksIn(backbeat, 0, tenBars)).toHaveLength(20)
+    expect(ticksIn(barOnly, 0, tenBars)).toHaveLength(10)
   })
 })
 
 describe('helpers', () => {
-  it('marks 2 and 4 as the accents', () => {
-    expect([1, 2, 3, 4].map(isAccent)).toEqual([false, true, false, true])
+  it('marks beat 1 as the only accent', () => {
+    expect([1, 2, 3, 4].map(isAccent)).toEqual([true, false, false, false])
   })
 
-  it('clicks every beat only in "all" mode', () => {
+  it('picks the clicking beats per mode', () => {
     expect([1, 2, 3, 4].map((b) => beatClicks(b, 'all'))).toEqual([true, true, true, true])
     expect([1, 2, 3, 4].map((b) => beatClicks(b, 'backbeat'))).toEqual([false, true, false, true])
+    expect([1, 2, 3, 4].map((b) => beatClicks(b, 'bar'))).toEqual([true, false, false, false])
   })
 
   it('clamps a bpm into the usable range', () => {

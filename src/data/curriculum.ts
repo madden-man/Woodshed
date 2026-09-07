@@ -375,9 +375,10 @@ export interface Variant {
   /**
    * Whether this step of the arc practises with a click. The method gives a
    * metronome to First-tempo-pass through Consolidate only; Introduce, Hands
-   * together and Rearrange are silent. Visibility is encoded here — on the
-   * variant, which changes day to day — not on the unit, so no unit can start
-   * dictating *how* through the back door.
+   * together and Rearrange are silent. The tool itself is always on screen —
+   * this flag only puts an advisory note beside it on the silent steps. It
+   * lives here on the variant, which changes day to day, not on the unit, so
+   * no unit can start dictating *how* through the back door.
    */
   metronome: boolean
   /** Wiki slugs for the method this step relies on. */

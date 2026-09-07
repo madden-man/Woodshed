@@ -208,9 +208,12 @@ Three phases, independent, in value order:
 - **Parse bpm requirements out of the prose with a regex.** Rejected. The
   house rule is fields over parsing; prose is for people. `targetBpm` mirrors
   the number the target already states.
-- **A metronome always available on every block.** Rejected. The method says
-  no click before step 4, and the wiki's tempo-targets page explains why.
-  A tool the method forbids should not be on screen.
+- **A metronome always available on every block.** Rejected at first, then
+  reversed in use (2026-09-07): there is always a reason to want a click, and
+  hiding the tool punished the player for the method's rule. The metronome now
+  sits on every block; the steps the method keeps clickless carry a "no click
+  on this step" note beside it, with `Variant.metronome` surviving as that
+  note's source rather than as a visibility gate.
 - **Pull in a soundfont/metronome library.** Rejected for now. The engine is
   a page of code on an AudioContext the app already owns, and the chime shows
   the pattern works. A sampled instrument may justify a dependency later,

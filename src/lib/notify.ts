@@ -88,15 +88,27 @@ export function chime(kind: 'block' | 'done') {
 }
 
 /**
- * One metronome click, scheduled at `time` on the shared audio clock. A short,
- * dry blip — a higher, louder one on the accented beats (2 and 4) so the
- * backbeat reads even in 'all' mode.
+ * One metronome click, scheduled at `time` on the shared audio clock: a sine
+ * ping with a 1 ms attack and a natural decay, a fifth higher and louder on
+ * beat 1. It builds its own envelope rather than using `tone()` — the chime's
+ * 10 ms attack is right for a bell and wrong for a click, and cutting a fast
+ * tone off early is what made the old square-wave blip sound clipped.
  */
 export function click(time: number, accent: boolean) {
   const ac = context()
   if (!ac) return
-  if (accent) tone(ac, 1500, time, 0.03, 0.3, 'square')
-  else tone(ac, 1000, time, 0.03, 0.16, 'square')
+  const osc = ac.createOscillator()
+  const amp = ac.createGain()
+  osc.type = 'sine'
+  osc.frequency.value = accent ? 1500 : 1000
+  const gain = accent ? 0.45 : 0.25
+  amp.gain.setValueAtTime(0.0001, time)
+  amp.gain.linearRampToValueAtTime(gain, time + 0.001)
+  amp.gain.exponentialRampToValueAtTime(0.0001, time + 0.18)
+  osc.connect(amp)
+  amp.connect(ac.destination)
+  osc.start(time)
+  osc.stop(time + 0.2)
 }
 
 export function notify(title: string, body: string) {
