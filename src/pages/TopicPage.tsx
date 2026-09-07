@@ -22,7 +22,7 @@ export default function TopicPage() {
         <p>{topic.inPlainTerms}</p>
       </aside>
 
-      <Blocks blocks={topic.blocks} />
+      <Blocks blocks={topic.blocks} topic={topic} />
 
       {topic.related && topic.related.length > 0 && (
         <footer className="related">

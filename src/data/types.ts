@@ -96,4 +96,17 @@ export interface Topic {
   inPlainTerms: string
   blocks: Block[]
   related?: string[]
+  /**
+   * Recordings worth the two listens the Introduce step asks for. Two or three
+   * per tune, drawn from the same taste as `who-to-listen-to`. Each names an
+   * artist and album so the line is useful even if the URL dies; the URL, when
+   * present, is https and points at a legal place to hear it.
+   */
+  listening?: { artist: string; album: string; url?: string }[]
+  /**
+   * Where the melody is written down. A citation first ("The Real Book Vol. 1,
+   * 6th ed.") — a book cannot rot and most players own it. The URL is optional
+   * and only ever a legal source; we never host or link a scanned PDF.
+   */
+  leadSheet?: { source: string; url?: string }
 }

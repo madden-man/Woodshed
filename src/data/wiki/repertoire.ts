@@ -99,6 +99,12 @@ export const REPERTOIRE: Topic[] = [
       },
     ],
     related: ['major-two-five-one', 'minor-two-five-one', 'guide-tone-lines', 'song-forms'],
+    listening: [
+      { artist: 'Cannonball Adderley', album: 'Somethin’ Else' },
+      { artist: 'Bill Evans Trio', album: 'Portrait in Jazz' },
+      { artist: 'Keith Jarrett Trio', album: 'Still Live' },
+    ],
+    leadSheet: { source: 'The Real Book Vol. 1, 6th ed. (Hal Leonard)' },
   },
   {
     slug: 'blue-bossa',
@@ -150,6 +156,12 @@ export const REPERTOIRE: Topic[] = [
       },
     ],
     related: ['minor-two-five-one', 'rootless-voicings', 'left-hand-patterns', 'rootless-minor-voicings'],
+    listening: [
+      { artist: 'Joe Henderson', album: 'Page One' },
+      { artist: 'Dexter Gordon', album: 'Biting the Apple' },
+      { artist: 'Kenny Dorham', album: 'Trompeta Toccata' },
+    ],
+    leadSheet: { source: 'The Real Book Vol. 1, 6th ed. (Hal Leonard)' },
   },
   {
     slug: 'take-the-a-train',
@@ -203,6 +215,12 @@ export const REPERTOIRE: Topic[] = [
       },
     ],
     related: ['lydian-dominant', 'secondary-dominants', 'rootless-voicings', 'song-forms'],
+    listening: [
+      { artist: 'Duke Ellington and His Orchestra', album: 'Ellington at Newport' },
+      { artist: 'Oscar Peterson Trio', album: 'Night Train' },
+      { artist: 'Ella Fitzgerald & Duke Ellington', album: 'Ella at Duke’s Place' },
+    ],
+    leadSheet: { source: 'The Real Book Vol. 1, 6th ed. (Hal Leonard)' },
   },
   {
     slug: 'beautiful-love',
@@ -257,6 +275,12 @@ export const REPERTOIRE: Topic[] = [
       },
     ],
     related: ['minor-two-five-one', 'rootless-minor-voicings', 'tritone-substitution', 'half-diminished-scale'],
+    listening: [
+      { artist: 'Bill Evans Trio', album: 'Explorations' },
+      { artist: 'Bill Evans', album: 'Alone' },
+      { artist: 'Chet Baker', album: 'Chet' },
+    ],
+    leadSheet: { source: 'The Real Book Vol. 1, 6th ed. (Hal Leonard)' },
   },
   {
     slug: 'solar',
@@ -304,6 +328,12 @@ export const REPERTOIRE: Topic[] = [
       },
     ],
     related: ['melodic-minor-family', 'altered-dominant-voicings', 'major-two-five-one', 'constraint-improvising'],
+    listening: [
+      { artist: 'Miles Davis', album: 'Walkin’' },
+      { artist: 'Bill Evans Trio', album: 'Sunday at the Village Vanguard' },
+      { artist: 'Chick Corea', album: 'Now He Sings, Now He Sobs' },
+    ],
+    leadSheet: { source: 'The Real Book Vol. 1, 6th ed. (Hal Leonard)' },
   },
   {
     slug: 'there-will-never-be-another-you',
@@ -360,6 +390,12 @@ export const REPERTOIRE: Topic[] = [
       },
     ],
     related: ['upper-structure-triads', 'secondary-dominants', 'lydian-dominant', 'song-forms'],
+    listening: [
+      { artist: 'Chet Baker', album: 'Chet Baker Sings and Plays' },
+      { artist: 'Sonny Stitt', album: 'Sonny Side Up' },
+      { artist: 'Nat King Cole', album: 'After Midnight' },
+    ],
+    leadSheet: { source: 'The Real Book Vol. 1, 6th ed. (Hal Leonard)' },
   },
   {
     slug: 'blues-forms',
@@ -426,6 +462,12 @@ export const REPERTOIRE: Topic[] = [
       },
     ],
     related: ['turnarounds', 'blues-language', 'diminished-and-blues', 'tritone-substitution'],
+    listening: [
+      { artist: 'Oscar Peterson Trio', album: 'Night Train' },
+      { artist: 'Wynton Kelly', album: 'Kelly Blue' },
+      { artist: 'Charlie Parker', album: 'The Genius of Charlie Parker #3: Now’s the Time' },
+    ],
+    leadSheet: { source: 'Charlie Parker, “Blues for Alice” — The Real Book Vol. 1, 6th ed. (Hal Leonard)' },
   },
   {
     slug: 'someday-my-prince-will-come',
@@ -480,6 +522,12 @@ export const REPERTOIRE: Topic[] = [
       },
     ],
     related: ['whole-tone-scale', 'block-chords', 'arranging-a-tune', 'secondary-dominants'],
+    listening: [
+      { artist: 'Miles Davis', album: 'Someday My Prince Will Come' },
+      { artist: 'Bill Evans Trio', album: 'Portrait in Jazz' },
+      { artist: 'Dave Brubeck Quartet', album: 'Dave Brubeck and Jay & Kai at Newport' },
+    ],
+    leadSheet: { source: 'The Real Book Vol. 1, 6th ed. (Hal Leonard)' },
   },
   {
     slug: 'arranging-a-tune',
@@ -578,6 +626,12 @@ export const REPERTOIRE: Topic[] = [
       },
     ],
     related: ['cycle-of-fourths', 'major-two-five-one', 'reharmonisation', 'walking-bass'],
+    listening: [
+      { artist: 'Charlie Parker & Dizzy Gillespie', album: 'Bird and Diz' },
+      { artist: 'Keith Jarrett Trio', album: 'Standards, Vol. 1' },
+      { artist: 'Ella Fitzgerald', album: 'Ella Fitzgerald Sings the Jerome Kern Song Book' },
+    ],
+    leadSheet: { source: 'The Real Book Vol. 1, 6th ed. (Hal Leonard)' },
   },
   {
     slug: 'rhythm-changes',

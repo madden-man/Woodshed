@@ -3,6 +3,7 @@ import { TOPICS, getTopic } from './theory'
 import { ascend, layoutKeyboard } from '../lib/keyboard'
 import { MAJOR_SCALES } from './fingerings'
 import { CATEGORIES } from './types'
+import { UNITS } from './curriculum'
 
 describe('the wiki', () => {
   it('has unique slugs', () => {
@@ -515,6 +516,67 @@ describe('chord charts', () => {
         expect(s.at, `${topic}: ${s.name}`).toBeLessThanOrEqual(block.bars.length)
         expect(s.name.trim(), topic).not.toBe('')
         last = s.at
+      }
+    }
+  })
+})
+
+/**
+ * Every tune a unit points its tune block at has to arrive with a listening
+ * list and a lead-sheet citation. The Introduce step sends the player away from
+ * the app to find both; making it a tested field means a future tune page
+ * cannot ship without them.
+ */
+describe('listening and lead sheets', () => {
+  const tuneWikiSlugs = [...new Set(UNITS.map((u) => u.tuneWiki))]
+
+  it('cover every tune a unit sends its tune block to', () => {
+    // The nine standards plus blues-forms, drawn straight from the curriculum.
+    expect(tuneWikiSlugs.length).toBeGreaterThanOrEqual(9)
+    for (const slug of tuneWikiSlugs) {
+      const topic = getTopic(slug)
+      expect(topic, slug).toBeDefined()
+      expect(topic?.listening, `${slug} has no listening list`).toBeDefined()
+      expect(topic?.leadSheet, `${slug} has no lead sheet`).toBeDefined()
+    }
+  })
+
+  it('name an artist and an album on every listening entry', () => {
+    for (const slug of tuneWikiSlugs) {
+      const listening = getTopic(slug)?.listening ?? []
+      // Two or three per tune, as the ADR asks.
+      expect(listening.length, slug).toBeGreaterThanOrEqual(2)
+      for (const rec of listening) {
+        expect(rec.artist.trim(), `${slug}: artist`).not.toBe('')
+        expect(rec.album.trim(), `${slug}: album`).not.toBe('')
+      }
+    }
+  })
+
+  it('cite a source on every lead sheet, even when a URL exists', () => {
+    for (const slug of tuneWikiSlugs) {
+      const leadSheet = getTopic(slug)?.leadSheet
+      expect(leadSheet?.source.trim(), `${slug}: lead sheet source`).not.toBe('')
+    }
+  })
+
+  it('link only over https, everywhere a URL is given', () => {
+    for (const t of TOPICS) {
+      for (const rec of t.listening ?? []) {
+        if (rec.url !== undefined) expect(rec.url, `${t.slug}: ${rec.album}`).toMatch(/^https:\/\//)
+      }
+      if (t.leadSheet?.url !== undefined) {
+        expect(t.leadSheet.url, `${t.slug}: lead sheet`).toMatch(/^https:\/\//)
+      }
+    }
+  })
+
+  it('carries listening and lead sheets on Repertoire tune pages only', () => {
+    // The generic pages (song-forms, arranging) are exempt unless a unit points
+    // a tune block at them; nothing outside Repertoire should carry the fields.
+    for (const t of TOPICS) {
+      if (t.listening || t.leadSheet) {
+        expect(t.category, `${t.slug} carries listening but is not Repertoire`).toBe('Repertoire')
       }
     }
   })

@@ -26,6 +26,14 @@ export interface Unit {
    * material must never bake in hands-together, a tempo, or a metronome.
    */
   target: string
+  /**
+   * The bpm the target names, mirrored as a number for the metronome to aim at.
+   * Display-only — it is shown as the standard, never as today's setting, and
+   * whether a unit has one changes nothing about when the metronome appears
+   * (that is the variant's `metronome` flag). Fields over parsing: this repeats
+   * the number already in the prose rather than a regex digging it back out.
+   */
+  targetBpm?: number
   /** Wiki slugs this unit builds on. */
   wiki: string[]
   /** The Repertoire page for this unit's tune. */
@@ -62,6 +70,7 @@ export const UNITS: Unit[] = [
     level: '4.0',
     goal: 'Every major scale clean and even, and a shell voicing under every chord.',
     target: 'Every major scale even at ♩=100, hands together.',
+    targetBpm: 100,
     wiki: [
       'chord-numbers', 'cycle-of-fourths', 'major-scale-modes', 'shell-voicings', 'tempo-targets',
       'major-two-five-one', 'seventh-chords-and-inversions', 'fingering-principles', 'arpeggios-and-inversions',
@@ -92,6 +101,7 @@ export const UNITS: Unit[] = [
     level: '4.2',
     goal: 'Modes heard as degrees of one scale, and the first scales in 3rds.',
     target: 'The major scale in 3rds at ♩=88, and modes without stopping to work out the parent.',
+    targetBpm: 88,
     wiki: [
       'major-scale-modes', 'shell-voicings',
       'extensions-and-avoid-notes', 'guide-tone-lines', 'scales-in-thirds', 'touch-and-balance',
@@ -148,6 +158,7 @@ export const UNITS: Unit[] = [
     level: '4.6',
     goal: 'Mixolydian, the bebop scale, and chord tones landing on downbeats by themselves.',
     target: 'Dominant bebop at ♩=100, chord tones landing on the downbeats by themselves.',
+    targetBpm: 100,
     wiki: [
       'bebop-scales', 'major-scale-modes', 'hand-independence',
       'turnarounds', 'left-hand-patterns', 'comping-rhythms', 'walking-bass',
@@ -209,6 +220,7 @@ export const UNITS: Unit[] = [
     level: '5.0',
     goal: 'One scale that carries every alteration, on every dominant, without thinking.',
     target: 'The altered scale on any dominant at ♩=100, without deriving it first.',
+    targetBpm: 100,
     wiki: [
       'melodic-minor-family', 'minor-two-five-one',
       'tritone-substitution', 'altered-dominant-voicings', 'lydian-dominant', 'chromatic-and-enharmonics',
@@ -330,6 +342,7 @@ export const UNITS: Unit[] = [
     level: '5.8',
     goal: 'Everything, in every key, at tempo, without a chart in front of you.',
     target: 'All twelve keys at ♩=120, in 3rds, no chart.',
+    targetBpm: 120,
     wiki: [
       'cycle-of-fourths', 'tempo-targets', 'major-scale-modes', 'melodic-minor-family',
       'chord-scale-reference', 'reharmonisation', 'building-speed', 'building-a-solo', 'practice-log',
@@ -359,6 +372,14 @@ export const UNITS: Unit[] = [
 export interface Variant {
   name: string
   aim: string
+  /**
+   * Whether this step of the arc practises with a click. The method gives a
+   * metronome to First-tempo-pass through Consolidate only; Introduce, Hands
+   * together and Rearrange are silent. Visibility is encoded here — on the
+   * variant, which changes day to day — not on the unit, so no unit can start
+   * dictating *how* through the back door.
+   */
+  metronome: boolean
   /** Wiki slugs for the method this step relies on. */
   wiki?: string[]
   scales: string
@@ -371,6 +392,7 @@ export interface Variant {
 export const VARIANTS: Variant[] = [
   {
     name: 'Introduce',
+    metronome: false,
     wiki: ['learning-a-tune'],
     aim: 'Meet the material. Slowly, hands apart, no metronome.',
     scales: 'Hands separately, no click, as slow as it takes to be perfect',
@@ -380,6 +402,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Hands together',
+    metronome: false,
     wiki: ['learning-a-tune'],
     aim: 'Combine, at half the tempo you think you need.',
     scales: 'Hands together at half your target tempo, no exceptions',
@@ -389,6 +412,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Rearrange',
+    metronome: false,
     wiki: ['learning-a-tune', 'song-forms'],
     aim: 'Break the material out of the pattern you learned it in.',
     scales: 'In 3rds — up a third, down a third — and starting from a degree other than the root',
@@ -398,6 +422,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'First tempo pass',
+    metronome: true,
     wiki: ['counting-and-the-click'],
     aim: 'The metronome joins, on 2 and 4.',
     scales: 'Click on 2 and 4. Find the fastest clean tempo and write the number down.',
@@ -407,6 +432,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Push',
+    metronome: true,
     wiki: ['building-speed'],
     aim: 'Four bpm past yesterday. Two mistakes and you drop six.',
     scales: 'Yesterday’s clean tempo plus 4 bpm. Break down twice and take it back 6.',
@@ -416,6 +442,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Apply',
+    metronome: true,
     wiki: ['constraint-improvising'],
     aim: 'Take it out of the exercise and into the music.',
     scales: 'Only as much scale work as it takes to warm up — the material goes into the tune today',
@@ -425,6 +452,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Transpose',
+    metronome: true,
     wiki: ['learning-a-tune', 'ear-training'],
     aim: 'A fourth up, by ear rather than by shape.',
     scales: 'Same material a fourth above today’s key, worked out by ear',
@@ -434,6 +462,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Combine',
+    metronome: true,
     aim: 'Fold in the previous unit so nothing decays behind you.',
     scales: 'Alternate this unit’s scales with the previous unit’s, bar for bar',
     voicings: 'Alternate voicing types chorus by chorus — this unit, then the last one',
@@ -442,6 +471,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Speed',
+    metronome: true,
     aim: 'All twelve keys, two octaves, no stopping.',
     scales: 'This unit’s scales in all twelve keys, two octaves, around the cycle of fourths. Keep going through mistakes.',
     voicings: 'The ii–V–I in all twelve keys, four bars each, no pause between',
@@ -450,6 +480,7 @@ export const VARIANTS: Variant[] = [
   },
   {
     name: 'Consolidate',
+    metronome: true,
     wiki: ['recording-yourself'],
     aim: 'Nothing new. Record a take and listen to it twice.',
     scales: 'Your three slowest keys from this unit, at a comfortable tempo',

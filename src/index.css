@@ -2005,6 +2005,270 @@ td.lead-cell {
   }
 }
 
+/* ---------------- metronome ---------------- */
+
+.metronome {
+  margin-top: 14px;
+  padding: 10px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--brass);
+  border-radius: 0 3px 3px 0;
+  max-width: 64ch;
+}
+
+.metronome-toggle {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  border: 1px solid var(--rule-2);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.metronome-toggle.is-running {
+  background: var(--felt);
+  border-color: var(--felt);
+  color: var(--surface);
+}
+
+.metronome-tempo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metronome-step {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--rule-2);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.metronome-bpm {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.metronome-bpm input {
+  width: 3.4em;
+  font-family: var(--f-mono);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+  padding: 3px 4px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--ground);
+  color: var(--ink);
+}
+
+.metronome-unit {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.metronome-mode {
+  display: inline-flex;
+  border: 1px solid var(--rule-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.metronome-mode button {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 6px 9px;
+  border: 0;
+  background: var(--surface);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.metronome-mode button + button {
+  border-left: 1px solid var(--rule-2);
+}
+
+.metronome-mode button[aria-pressed='true'] {
+  background: var(--moss);
+  color: var(--surface);
+}
+
+.metronome-target {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.metronome-target .mono {
+  color: var(--ink-2);
+}
+
+.metronome.is-bar {
+  margin-top: 10px;
+  padding: 8px 12px;
+  gap: 10px;
+  max-width: none;
+}
+
+.metronome.is-bar .metronome-toggle {
+  padding: 6px 12px;
+}
+
+/* ---------------- listen, then read ---------------- */
+
+.listen-read {
+  margin: 16px 0 20px;
+  padding: 12px 16px;
+  background: var(--moss-soft);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--moss);
+  border-radius: 0 3px 3px 0;
+  max-width: 64ch;
+}
+
+.listen-read-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--moss);
+  margin-bottom: 9px;
+}
+
+.listen-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 5px;
+}
+
+.listen-list li {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.listen-list a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-2);
+}
+
+.listen-list a:hover {
+  border-bottom-color: var(--moss);
+}
+
+.listen-album {
+  font-style: italic;
+}
+
+.lead-sheet {
+  margin: 10px 0 0;
+  padding-top: 9px;
+  border-top: 1px solid var(--rule);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.lead-sheet-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin-right: 8px;
+}
+
+.lead-sheet a {
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--rule-2);
+  text-decoration: none;
+}
+
+.listen-read.is-bar {
+  margin: 10px 0;
+  padding: 9px 12px;
+  max-width: none;
+}
+
+.listen-read.is-bar .listen-list li,
+.listen-read.is-bar .lead-sheet {
+  font-size: 12px;
+}
+
+/* ---------------- play buttons ---------------- */
+
+.play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: 10px;
+  padding: 0;
+  vertical-align: middle;
+  border: 1px solid var(--rule-2);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--felt);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.play-btn:hover {
+  border-color: var(--felt);
+}
+
+.play-btn.is-playing {
+  background: var(--felt);
+  border-color: var(--felt);
+  color: var(--surface);
+}
+
+.keyboard-run {
+  margin: 0 0 4px;
+}
+
+.keyboard-run-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.keyboard-run-hint {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 /* ---------------- keyboard diagrams ---------------- */
 
 .keyboard-figure {

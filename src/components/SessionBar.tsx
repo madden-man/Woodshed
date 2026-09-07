@@ -6,6 +6,12 @@ import type { KeyName } from '../data/keys'
 import { useTimer } from '../hooks/timer-context'
 import Fingering from './Fingering'
 import Drill from './Drill'
+import Metronome from './Metronome'
+import ListenThenRead from './ListenThenRead'
+import { getTopic } from '../data/theory'
+
+/** The blocks the method gives a metronome to, when the step allows one. */
+const METRONOME_BLOCKS = new Set(['scales', 'voicings', 'independence'])
 
 /**
  * Sticky under the masthead for the whole session, on every page. Carries the
@@ -129,6 +135,9 @@ export default function SessionBar() {
           unitId={regimen.unit.id}
           blockId={detail.id}
           scaleKey={regimen.key}
+          metronome={regimen.variant.metronome && METRONOME_BLOCKS.has(detail.id)}
+          targetBpm={regimen.unit.targetBpm}
+          tuneWiki={detail.id === 'tune' ? regimen.unit.tuneWiki : undefined}
         />
       )}
     </div>
@@ -173,9 +182,28 @@ interface DetailProps {
   unitId: number
   blockId: string
   scaleKey: KeyName
+  /** Whether this step and block get a metronome. */
+  metronome: boolean
+  targetBpm?: number
+  /** The tune's slug on the tune block, so listening links can surface here. */
+  tuneWiki?: string
 }
 
-function BlockDetail({ purpose, items, drill, context, target, regimen, unitId, blockId, scaleKey }: DetailProps) {
+function BlockDetail({
+  purpose,
+  items,
+  drill,
+  context,
+  target,
+  regimen,
+  unitId,
+  blockId,
+  scaleKey,
+  metronome,
+  targetBpm,
+  tuneWiki,
+}: DetailProps) {
+  const tune = tuneWiki ? getTopic(tuneWiki) : undefined
   // Remounting on each hand-off resets this to open, so new work is never hidden.
   const [open, setOpen] = useState(true)
 
@@ -201,6 +229,10 @@ function BlockDetail({ purpose, items, drill, context, target, regimen, unitId, 
               ))}
             </ul>
             {drill && <Drill drill={drill} variant="bar" />}
+            {tune && <ListenThenRead topic={tune} variant="bar" />}
+            {metronome && (
+              <Metronome regimen={regimen} blockId={blockId} targetBpm={targetBpm} variant="bar" />
+            )}
             <Fingering unitId={unitId} blockId={blockId} scaleKey={scaleKey} variant="bar" />
           </div>
           <p className="bar-target">

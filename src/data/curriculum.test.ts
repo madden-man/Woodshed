@@ -334,4 +334,50 @@ describe('variants', () => {
     const scales = r.blocks.find((b) => b.id === 'scales')!
     expect(scales.items[scales.items.length - 1]).toBe(r.variant.scales)
   })
+
+  /**
+   * The metronome joins at step 4 of the arc and stays. Making that a boolean on
+   * the variant is what lets the UI show the tool exactly when the method allows
+   * it — a metronome on the Introduce step would be an invitation to break the
+   * method.
+   */
+  it('give a metronome from First tempo pass onward, and not before', () => {
+    const silent = ['Introduce', 'Hands together', 'Rearrange']
+    for (const v of VARIANTS) {
+      expect(typeof v.metronome, v.name).toBe('boolean')
+      expect(v.metronome, v.name).toBe(!silent.includes(v.name))
+    }
+  })
+})
+
+describe('the metronome flag', () => {
+  /**
+   * `metronome` lives on the variant, never the unit — the same guard as the
+   * execution-directive test, from the other side. If a unit's targetBpm ever
+   * started deciding visibility, a unit would be dictating *how*.
+   */
+  it('is a property of the variant, not the unit', () => {
+    for (const unit of UNITS) {
+      expect(unit, `unit ${unit.id}`).not.toHaveProperty('metronome')
+    }
+    for (const v of VARIANTS) expect(v).toHaveProperty('metronome')
+  })
+
+  it('mirrors a bpm only where the target already names one, and only as a number', () => {
+    for (const unit of UNITS) {
+      if (unit.targetBpm === undefined) continue
+      expect(typeof unit.targetBpm, `unit ${unit.id}`).toBe('number')
+      // The number is in the prose too — this mirrors it rather than inventing it.
+      expect(unit.target, `unit ${unit.id}`).toContain(`♩=${unit.targetBpm}`)
+    }
+  })
+
+  it('is display-only: no unit dictates a tempo through it', () => {
+    // A unit that names a bpm in its target still says nothing about it in the
+    // material — the material is what the directive test reads.
+    for (const unit of UNITS) {
+      const material = [...unit.scales('C'), ...unit.voicings('C'), ...unit.tune('C')].join(' ')
+      expect(material, `unit ${unit.id}`).not.toMatch(/♩=/)
+    }
+  })
 })

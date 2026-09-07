@@ -1,18 +1,51 @@
-import type { Block } from '../data/types'
+import { useEffect, useState } from 'react'
+import type { Block, Topic } from '../data/types'
 import Keyboard from './Keyboard'
+import ListenThenRead from './ListenThenRead'
+import { ascend } from '../lib/keyboard'
+import { playNotes, playProgression, playRhythm, strikePositions } from '../lib/sound'
+import { prime } from '../lib/notify'
 
-/** Renders the block union from a topic. One case per Block kind. */
-export default function Blocks({ blocks }: { blocks: Block[] }) {
-  return (
-    <>
-      {blocks.map((block, i) => (
-        <BlockView key={i} block={block} />
-      ))}
-    </>
-  )
+/**
+ * Renders the block union from a topic. One case per Block kind.
+ *
+ * `topic` is optional; when a tune page passes it, the "Listen, then read" row
+ * is dropped in directly under the changes chart, where the method wants it.
+ */
+export default function Blocks({ blocks, topic }: { blocks: Block[]; topic?: Topic }) {
+  const items: React.ReactNode[] = []
+  let i = 0
+  while (i < blocks.length) {
+    const block = blocks[i]
+    // Consecutive keyboard blocks over one span are the voice-leading
+    // arrangement the README describes; they get a single control that plays
+    // the chords in order, which is the whole lesson of the shells page.
+    if (block.kind === 'keyboard' && block.span) {
+      const run: Extract<Block, { kind: 'keyboard' }>[] = []
+      const span = block.span.join('-')
+      while (
+        i < blocks.length &&
+        blocks[i].kind === 'keyboard' &&
+        (blocks[i] as Extract<Block, { kind: 'keyboard' }>).span?.join('-') === span
+      ) {
+        run.push(blocks[i] as Extract<Block, { kind: 'keyboard' }>)
+        i++
+      }
+      if (run.length > 1) {
+        items.push(<KeyboardRun key={`run-${i}`} blocks={run} />)
+        continue
+      }
+      // A lone spanned diagram falls through to the ordinary single renderer.
+      items.push(<BlockView key={i - 1} block={run[0]} topic={topic} />)
+      continue
+    }
+    items.push(<BlockView key={i} block={block} topic={topic} />)
+    i++
+  }
+  return <>{items}</>
 }
 
-function BlockView({ block }: { block: Block }) {
+function BlockView({ block, topic }: { block: Block; topic?: Topic }) {
   switch (block.kind) {
     case 'prose':
       return <p className="prose">{block.text}</p>
@@ -85,7 +118,13 @@ function BlockView({ block }: { block: Block }) {
     case 'keyboard':
       return (
         <figure className="keyboard-figure">
-          <figcaption>{block.label}</figcaption>
+          <figcaption>
+            {block.label}
+            <PlayButton
+              label={`Play ${block.label}`}
+              onPlay={() => playNotes(ascend(block.notes, block.startOctave))}
+            />
+          </figcaption>
           <div className="keyboard-scroll">
             <Keyboard
               notes={block.notes}
@@ -120,7 +159,12 @@ function BlockView({ block }: { block: Block }) {
       return <RhythmGrid block={block} />
 
     case 'changes':
-      return <ChangesChart block={block} />
+      return (
+        <>
+          <ChangesChart block={block} />
+          {topic && <ListenThenRead topic={topic} />}
+        </>
+      )
   }
 }
 
@@ -136,23 +180,48 @@ function RhythmGrid({ block }: { block: RhythmBlock }) {
   if (block.right) hands.push({ name: 'RH', pattern: block.right })
   if (block.left) hands.push({ name: 'LH', pattern: block.left })
 
+  // A steady practice tempo for the loop; the grid is not about speed.
+  const BPM = 84
+  const [stop, setStop] = useState<(() => void) | null>(null)
+  const playing = stop !== null
+
+  // Stop the loop if the grid unmounts while it is running.
+  useEffect(() => () => stop?.(), [stop])
+
+  function toggle() {
+    if (stop) {
+      stop()
+      setStop(null)
+      return
+    }
+    void prime()
+    const halt = playRhythm({ left: block.left, right: block.right, beats, subdivision: sub, bpm: BPM })
+    setStop(() => halt)
+  }
+
   return (
     <figure className="rhythm">
-      <figcaption>{block.label}</figcaption>
+      <figcaption>
+        {block.label}
+        <PlayButton label={`Play ${block.label}`} playing={playing} onPlay={toggle} />
+      </figcaption>
       <div className="rhythm-scroll">
         <div className="rhythm-grid" style={{ gridTemplateColumns: `auto repeat(${cells}, 1fr)` }}>
-          {hands.map((hand) => (
-            <div key={hand.name} className="rhythm-row">
-              <span className="rhythm-hand">{hand.name}</span>
-              {Array.from({ length: cells }, (_, i) => {
-                const hit = hand.pattern[i] === 'x'
-                let cls = 'rhythm-cell'
-                if (hit) cls += ' is-hit'
-                if (i % sub === 0) cls += ' is-beat'
-                return <span key={i} className={cls} aria-label={hit ? 'strike' : 'rest'} />
-              })}
-            </div>
-          ))}
+          {hands.map((hand) => {
+            const strikes = new Set(strikePositions(hand.pattern))
+            return (
+              <div key={hand.name} className="rhythm-row">
+                <span className="rhythm-hand">{hand.name}</span>
+                {Array.from({ length: cells }, (_, i) => {
+                  const hit = strikes.has(i)
+                  let cls = 'rhythm-cell'
+                  if (hit) cls += ' is-hit'
+                  if (i % sub === 0) cls += ' is-beat'
+                  return <span key={i} className={cls} aria-label={hit ? 'strike' : 'rest'} />
+                })}
+              </div>
+            )
+          })}
           <div className="rhythm-row rhythm-counts">
             <span className="rhythm-hand" />
             {Array.from({ length: cells }, (_, i) => (
@@ -165,6 +234,69 @@ function RhythmGrid({ block }: { block: RhythmBlock }) {
       </div>
       {block.note && <p className="note">{block.note}</p>}
     </figure>
+  )
+}
+
+type KeyboardBlock = Extract<Block, { kind: 'keyboard' }>
+
+/**
+ * A run of keyboard diagrams drawn over one span — a voice-led progression. The
+ * diagrams draw as usual, and a single control plays the chords in order, so
+ * you can hear the guide tone hold and then drop a half step, which the still
+ * pictures can only show.
+ */
+function KeyboardRun({ blocks }: { blocks: KeyboardBlock[] }) {
+  const chords = blocks.map((b) => ascend(b.notes, b.startOctave))
+  return (
+    <div className="keyboard-run">
+      <div className="keyboard-run-control">
+        <PlayButton label="Play the progression" onPlay={() => playProgression(chords)} />
+        <span className="keyboard-run-hint">the chords in order</span>
+      </div>
+      {blocks.map((block, i) => (
+        <figure key={i} className="keyboard-figure">
+          <figcaption>
+            {block.label}
+            <PlayButton
+              label={`Play ${block.label}`}
+              onPlay={() => playNotes(ascend(block.notes, block.startOctave))}
+            />
+          </figcaption>
+          <div className="keyboard-scroll">
+            <Keyboard
+              notes={block.notes}
+              fingers={block.fingers}
+              hand={block.hand}
+              span={block.span}
+              startOctave={block.startOctave}
+            />
+          </div>
+          {block.note && <p className="note">{block.note}</p>}
+        </figure>
+      ))}
+    </div>
+  )
+}
+
+/**
+ * The play affordance. A speaker glyph that a click sounds; for looping content
+ * (a rhythm) it stays pressed and stops on the next click. `prime()` is called
+ * from the same gesture so nothing sounds before a click, exactly as the timer.
+ */
+function PlayButton({ label, onPlay, playing }: { label: string; onPlay: () => void; playing?: boolean }) {
+  return (
+    <button
+      type="button"
+      className={playing ? 'play-btn is-playing' : 'play-btn'}
+      aria-label={label}
+      aria-pressed={playing || undefined}
+      onClick={() => {
+        void prime()
+        onPlay()
+      }}
+    >
+      <span aria-hidden="true">{playing ? '■' : '▶'}</span>
+    </button>
   )
 }
 

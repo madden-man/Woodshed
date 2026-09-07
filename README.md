@@ -39,8 +39,13 @@ src/
     timer-context.ts      Context + useTimer()
     TimerProvider.tsx     Session timer; announces each block hand-off
   lib/
-    notify.ts             Chime (Web Audio) + system notifications
+    notify.ts             Chime + metronome click + note tone (Web Audio) + system notifications
     session-clock.ts      Pure clock arithmetic — pause/resume/skip/locate
+    metronome.ts          Pure tick scheduling — bpm, beats, backbeat vs all
+    metronome-audio.ts    Lookahead scheduler over the shared AudioContext
+    metronome-storage.ts  Remembers a bpm per (regimen, block)
+    sound.ts              Pitch-to-frequency, playNotes, progression + rhythm playback
+    keyboard.ts           Pure geometry for the diagrams — ascend(), layout
   pages/
     Home.tsx           Wiki index, filter, what's up next
     TopicPage.tsx      A single wiki topic
@@ -150,6 +155,29 @@ TypeScript will point at the switch if you forget.
   tune page in Repertoire has exactly one, for the whole form, with the bars
   the regimen refers to ("the bridge") marked.
 
+A Repertoire tune page also carries two structured references, surfaced on the
+session's tune block and under the changes chart as a "Listen, then read" row,
+because the method says listening comes first:
+
+- `listening` — two or three canonical recordings, each naming an artist and an
+  album so the line survives a dead link, drawn from the same taste as
+  `who-to-listen-to`. A `url`, when present, is https and points at a legal
+  place to hear it.
+- `leadSheet` — where the melody is written down. A citation first ("The Real
+  Book Vol. 1, 6th ed."), because a book can't rot and most players own it; the
+  `url` is optional and only ever a legal source. We never link a scan.
+
+A test requires both on every topic some unit's `tuneWiki` points at, checks
+every URL is https, and holds `leadSheet.source` non-empty even when a URL
+exists. Keyboard and rhythm diagrams are playable: a play button synthesises
+the pitches `ascend()` already resolves (keyboard blocks, and one control for a
+progression drawn over a shared `span`), and a rhythm grid loops its own pattern
+on the metronome engine. `progression` blocks stay silent — they carry no
+voicing. A metronome appears on the scales, voicings and independence blocks
+when the step's `Variant.metronome` is true, which is First-tempo-pass onward;
+`Unit.targetBpm` mirrors the number the target already states and is shown as
+the standard, never as the day's setting.
+
 **House style: never leave a number unexplained.** Chord shorthand like `1-7-3`
 is unreadable until someone spells it out, so:
 
@@ -192,17 +220,20 @@ every chord quality.
 
 ## Tests
 
-`npm test` (vitest, `src/**/*.test.ts`). Seven files, no DOM and no mocks —
+`npm test` (vitest, `src/**/*.test.ts`). Ten files, no DOM and no mocks —
 everything worth testing here is pure.
 
 | File | Guards |
 | --- | --- |
 | `lib/session-clock.test.ts` | Pause continues rather than restarts; repeated cycles neither lose nor double time; seek lands on the first instant of any block in either direction, and skip is provably just seek-to-next |
+| `lib/metronome.test.ts` | A bar has the right tick count at a given bpm; backbeat mode ticks only on 2 and 4; accents land where the mode says; a windowed query is half-open, so a boundary tick belongs to exactly one window and is never emitted twice |
 | `data/keys.test.ts` | The harmony itself — ii/V/I roots, minor ii–V–i roots, chord qualities, and that all 48 upper-structure triads really are ♭II/VI/♭VI/II above their dominant |
-| `data/curriculum.test.ts` | All 100 generate; the arc repeats per unit; keys follow the cycle; minutes split exactly at every session length; every unit, tune and step links only to topics that exist and every topic is linked from somewhere; **unit material never dictates execution** |
-| `data/theory.test.ts` | Slugs unique and url-safe, related links resolve, table rows match their headers, no empty content, every topic has a jargon-free opener, worked rows actually explain themselves, every Scales and Harmony topic has a keyboard, one-hand shapes fit one hand, rhythm grids fill their bar, and tune charts run a whole number of phrases |
+| `data/curriculum.test.ts` | All 100 generate; the arc repeats per unit; keys follow the cycle; minutes split exactly at every session length; every unit, tune and step links only to topics that exist and every topic is linked from somewhere; the metronome joins at step 4 and lives on the variant; **unit material never dictates execution** |
+| `data/theory.test.ts` | Slugs unique and url-safe, related links resolve, table rows match their headers, no empty content, every topic has a jargon-free opener, worked rows actually explain themselves, every Scales and Harmony topic has a keyboard, one-hand shapes fit one hand, rhythm grids fill their bar, tune charts run a whole number of phrases, and every `tuneWiki` target carries a listening list and a lead-sheet citation with https-only URLs |
 | `data/fingerings.test.ts` | Every scale spells a real major scale with one letter per degree; no thumb on a black key mid-scale; no finger jumps except across a crossing |
 | `lib/timer-storage.test.ts` | A session round-trips through a refresh with its position intact; running clocks keep running and paused ones stay frozen; stale, future-dated and malformed blobs are refused |
+| `lib/metronome-storage.test.ts` | A bpm round-trips per (regimen, block); values clamp into range; garbage and a throwing localStorage degrade to no memory; the opening tempo is the remembered one, else the target minus a margin, else 80 |
+| `lib/sound.test.ts` | Pitch-to-frequency spot checks against the numbers `ascend()` produces (A4 = 440, C4 ≈ 261.63); a rhythm's playback strike positions match the cells the grid draws for the same pattern |
 
 The execution-directive test is the interesting one. Unit material says *what*
 to play and the variant says *how*; a unit that bakes in "hands together"
@@ -320,6 +351,6 @@ provider so it can be reasoned about without React in the way.
 
 ## Next
 
-- Tempo log per key, so unit 10's targets are measurable.
-- Metronome with the click on 2 and 4.
+- Tempo log per key, so unit 10's targets are measurable — and the Push step's
+  "yesterday plus 4" wants it as its first consumer.
 - Notes per session — what actually happened, not just whether it happened.
